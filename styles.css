@@ -60,3 +60,18 @@ nav a{display:flex;align-items:center;min-height:44px}
  footer a,.contact .actions a{min-height:44px;display:inline-flex;align-items:center}
 }
 
+
+/* Navegação recolhível para celular e tablet. */
+.menu-toggle{display:none;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:.875rem}
+@media(max-width:900px){
+ .navigation-ready .menu-toggle{display:inline-flex;order:2}
+ .header-inner{gap:12px;align-items:center}
+ .theme-control{order:1}
+ .theme-control select{font-size:.875rem;padding-inline:8px}
+ #navigation{order:3;width:100%;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:12px;padding-bottom:6px}
+ #navigation a{padding:10px 14px;border-radius:7px;min-height:48px;font-size:1rem}
+ #navigation a:hover,#navigation a:focus-visible{background:var(--surface);color:var(--accent)}
+}
+@media(max-width:360px){
+ .header-inner{gap:8px}.brand{font-size:1.6rem}.menu-toggle{padding-inline:10px}.theme-control select{max-width:145px}
+}
