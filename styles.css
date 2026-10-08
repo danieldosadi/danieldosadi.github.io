@@ -7,3 +7,56 @@
 @media(max-width:760px){html{scroll-padding-top:170px}.container{width:calc(100% - 36px)}.header-inner{flex-wrap:wrap;padding-block:14px;gap:12px}.brand{margin-right:auto}.theme-control{order:1}nav{order:2;width:100%;gap:9px 18px;font-size:.8rem}.hero{grid-template-columns:1fr;padding-block:55px;gap:42px}.portrait-wrap{width:min(380px,100%);margin-inline:auto}.section{padding-block:55px}.about-copy{font-size:1rem}.timeline li{grid-template-columns:1fr;gap:8px;padding-left:24px}.contact{padding:35px 24px;margin-bottom:45px}.section-heading{margin-bottom:28px}}
 @media(max-width:480px){.projects-grid,.skills-grid{grid-template-columns:1fr}.button{padding:11px 14px}.hero h1{font-size:2.8rem}.location span{padding-inline:4px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Ajustes responsivos: colunas flexíveis, controles de toque e texto ampliado. */
+.hero-copy,.portrait-wrap,.skill,.project,.timeline li>div{min-width:0}
+.hero{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.skills-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.projects-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.button,.filters button,select{min-height:44px}
+nav a{display:flex;align-items:center;min-height:44px}
+.theme-control{flex-shrink:0}
+.frame-label{overflow-wrap:anywhere}
+.tag,.project-body .stack,.project-body .status{font-size:.875rem!important}
+.project{display:flex;flex-direction:column}
+.project-body{display:flex;flex-direction:column;flex:1}
+.project-body .stack{margin-top:auto;padding-top:12px}
+.project-art{flex-shrink:0}
+.email{max-width:100%}
+@media(max-width:1100px){
+ .header-inner{gap:12px}nav{gap:12px}
+ .skills-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .projects-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:900px){
+ .header-inner{flex-wrap:wrap;min-height:0;padding-block:10px;gap:4px 16px}
+ .brand{margin-right:auto}.theme-control{order:1}
+ nav{order:2;width:100%;justify-content:space-between;gap:0 12px;font-size:.875rem}
+ html{scroll-padding-top:145px}
+ .hero{grid-template-columns:1fr;min-height:0;padding-block:48px;gap:36px}
+ .hero-copy{max-width:680px}.portrait-wrap{width:min(360px,100%);margin-inline:auto}
+ .section{padding-block:56px}
+ .timeline li{grid-template-columns:170px minmax(0,1fr);gap:24px}
+}
+@media(max-width:600px){
+ .container{width:calc(100% - 32px)}
+ /* No celular, o cabeçalho acompanha a rolagem sem cobrir o conteúdo. */
+ .header{position:relative}html{scroll-padding-top:20px}
+ nav{justify-content:flex-start;gap:0 18px}
+ nav a{font-size:.875rem}
+ .hero h1{font-size:clamp(2.25rem,10vw,3.25rem)}
+ h1 span{font-size:.62em}.lead{font-size:1rem}
+ h2{font-size:clamp(1.8rem,7vw,2.3rem)}
+ .hero .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .hero .actions .primary{grid-column:1/-1}
+ .hero .button{justify-content:center}
+ .location{margin-top:24px}
+ .skills-grid,.projects-grid{grid-template-columns:1fr;gap:16px}
+ .skill,.project-body{padding:22px}
+ .symbol{margin-bottom:16px}
+ .filters{gap:8px}.filters button{padding:8px 14px}
+ .timeline li{grid-template-columns:1fr;gap:8px;padding-left:24px}
+ .contact{padding:30px 22px}.email{font-size:1.05rem}
+ footer a,.contact .actions a{min-height:44px;display:inline-flex;align-items:center}
+}
+
