@@ -28,33 +28,18 @@ filters.addEventListener('click', event => {
 });
 document.querySelector('#year').textContent = new Date().getFullYear();
 
-const menuToggle = document.querySelector('.menu-toggle');
-const navigation = document.querySelector('#navigation');
-const mobileNavigation = window.matchMedia('(max-width: 900px)');
-root.classList.add('navigation-ready');
-menuToggle.hidden = false;
-function setMenu(open) {
-  menuToggle.setAttribute('aria-expanded', String(open));
-  menuToggle.querySelector('.menu-label').textContent = open ? 'Fechar' : 'Menu';
-  navigation.hidden = mobileNavigation.matches && !open;
-}
-menuToggle.addEventListener('click', () => setMenu(menuToggle.getAttribute('aria-expanded') !== 'true'));
-navigation.addEventListener('click', event => {
+const mobileMenu = document.querySelector('.mobile-menu');
+mobileMenu.addEventListener('click', event => {
   const link = event.target.closest('a');
-  if (!link || !mobileNavigation.matches) return;
-  setMenu(false);
+  if (!link) return;
+  mobileMenu.open = false;
   const section = document.querySelector(link.getAttribute('href'));
   section.setAttribute('tabindex', '-1');
-  section.focus({ preventScroll: true });
+  section.focus({preventScroll:true});
 });
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && mobileNavigation.matches && menuToggle.getAttribute('aria-expanded') === 'true') {
-    setMenu(false);
-    menuToggle.focus();
+mobileMenu.addEventListener('keydown', event => {
+  if(event.key === 'Escape') {
+    mobileMenu.open = false;
+    mobileMenu.querySelector('summary').focus();
   }
 });
-mobileNavigation.addEventListener('change', () => {
-  if (mobileNavigation.matches && navigation.contains(document.activeElement)) menuToggle.focus();
-  setMenu(false);
-});
-setMenu(false);
