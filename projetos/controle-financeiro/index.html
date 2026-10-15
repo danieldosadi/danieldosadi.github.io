@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Controle Financeiro</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 8px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        /* RESUMO */
+
+        .resumo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .card p {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .receita {
+            color: #16a34a;
+        }
+
+        .despesa {
+            color: #dc2626;
+        }
+
+        .saldo {
+            color: #2563eb;
+        }
+
+        /* FORMULÁRIO */
+
+        .formulario {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .formulario h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo label {
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .campo input,
+        .campo select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .campo input:focus,
+        .campo select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .botao {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        /* TABELA */
+
+        .lista {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .lista h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .tipo-receita {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .tipo-despesa {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .btn-excluir {
+            background: #dc2626;
+            padding: 8px 12px;
+            width: auto;
+            font-size: 13px;
+        }
+
+        .btn-excluir:hover {
+            background: #b91c1c;
+        }
+
+        .sem-dados {
+            text-align: center;
+            color: #777;
+            padding: 30px;
+        }
+
+        /* RESPONSIVO */
+
+        @media (max-width: 700px) {
+
+            .resumo {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .botao {
+                grid-column: auto;
+            }
+
+            table {
+                min-width: 700px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<aside style="padding:12px 20px;background:#08131f;color:#f0f6fc;font:14px/1.6 Arial,sans-serif"><a href="../../#projetos" style="color:#65dceb;display:inline-block;padding:8px 0">← Voltar ao portfólio</a><p style="margin:4px 0">Os dados ficam apenas neste navegador, sem sincronização entre dispositivos. Limpar os dados do site remove os registros salvos.</p></aside>
+
+    <header>
+        <h1>💰 Controle Financeiro</h1>
+        <p>Controle suas receitas e despesas</p>
+    </header>
+
+    <main class="container">
+
+        <!-- RESUMO FINANCEIRO -->
+
+        <section class="resumo">
+
+            <div class="card">
+                <h3>💰 Receitas</h3>
+                <p id="totalReceitas" class="receita">
+                    R$ 0,00
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>💸 Despesas</h3>
+                <p id="totalDespesas" class="despesa">
+                    R$ 0,00
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>📊 Saldo</h3>
+                <p id="saldo" class="saldo">
+                    R$ 0,00
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- FORMULÁRIO -->
+
+        <section class="formulario">
+
+            <h2>➕ Novo lançamento</h2>
+
+            <form id="formFinanceiro">
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label for="descricao">
+                            Descrição
+                        </label>
+
+                        <input
+                            type="text"
+                            id="descricao"
+                            placeholder="Ex.: Salário"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="campo">
+                        <label for="valor">
+                            Valor
+                        </label>
+
+                        <input
+                            type="number"
+                            id="valor"
+                            placeholder="Ex.: 1500"
+                            min="0.01"
+                            step="0.01"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="campo">
+                        <label for="tipo">
+                            Tipo
+                        </label>
+
+                        <select id="tipo" required>
+                            <option value="">
+                                Selecione
+                            </option>
+
+                            <option value="receita">
+                                💰 Receita
+                            </option>
+
+                            <option value="despesa">
+                                💸 Despesa
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <div class="campo">
+                        <label for="categoria">
+                            Categoria
+                        </label>
+
+                        <select id="categoria" required>
+
+                            <option value="">
+                                Selecione
+                            </option>
+
+                            <option value="Salário">
+                                Salário
+                            </option>
+
+                            <option value="Alimentação">
+                                Alimentação
+                            </option>
+
+                            <option value="Moradia">
+                                Moradia
+                            </option>
+
+                            <option value="Transporte">
+                                Transporte
+                            </option>
+
+                            <option value="Lazer">
+                                Lazer
+                            </option>
+
+                            <option value="Saúde">
+                                Saúde
+                            </option>
+
+                            <option value="Educação">
+                                Educação
+                            </option>
+
+                            <option value="Outros">
+                                Outros
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="data">
+                            Data
+                        </label>
+
+                        <input
+                            type="date"
+                            id="data"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="botao">
+
+                        <button type="submit">
+                            Adicionar lançamento
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- LISTA -->
+
+        <section class="lista">
+
+            <h2>📋 Lançamentos</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Ação</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="listaLancamentos">
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        // ==========================================
+        // CONFIGURAÇÃO
+        // ==========================================
+
+        const form = document.getElementById("formFinanceiro");
+
+        const descricao = document.getElementById("descricao");
+        const valor = document.getElementById("valor");
+        const tipo = document.getElementById("tipo");
+        const categoria = document.getElementById("categoria");
+        const data = document.getElementById("data");
+
+        const listaLancamentos =
+            document.getElementById("listaLancamentos");
+
+        const totalReceitas =
+            document.getElementById("totalReceitas");
+
+        const totalDespesas =
+            document.getElementById("totalDespesas");
+
+        const saldo =
+            document.getElementById("saldo");
+
+
+        // ==========================================
+        // CARREGAR DADOS DO LOCALSTORAGE
+        // ==========================================
+
+        let lancamentos =
+            JSON.parse(localStorage.getItem("lancamentos")) || [];
+
+
+        // ==========================================
+        // DATA ATUAL
+        // ==========================================
+
+        const hoje = new Date();
+
+        const ano = hoje.getFullYear();
+
+        const mes = String(
+            hoje.getMonth() + 1
+        ).padStart(2, "0");
+
+        const dia = String(
+            hoje.getDate()
+        ).padStart(2, "0");
+
+        data.value = `${ano}-${mes}-${dia}`;
+
+
+        // ==========================================
+        // FORMATAÇÃO DE MOEDA
+        // ==========================================
+
+        function formatarMoeda(valor) {
+
+            return valor.toLocaleString(
+                "pt-BR",
+                {
+                    style: "currency",
+                    currency: "BRL"
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // FORMATAR DATA
+        // ==========================================
+
+        function formatarData(data) {
+
+            const partes = data.split("-");
+
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+        }
+
+
+        // ==========================================
+        // ADICIONAR LANÇAMENTO
+        // ==========================================
+
+        form.addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            const novoLancamento = {
+
+                id: Date.now(),
+
+                descricao: descricao.value,
+
+                valor: Number(valor.value),
+
+                tipo: tipo.value,
+
+                categoria: categoria.value,
+
+                data: data.value
+
+            };
+
+
+            lancamentos.push(novoLancamento);
+
+
+            salvarDados();
+
+            atualizarTela();
+
+
+            // Limpar formulário
+
+            descricao.value = "";
+            valor.value = "";
+
+            tipo.value = "";
+            categoria.value = "";
+
+            data.value = `${ano}-${mes}-${dia}`;
+
+        });
+
+
+        // ==========================================
+        // SALVAR NO NAVEGADOR
+        // ==========================================
+
+        function salvarDados() {
+
+            localStorage.setItem(
+                "lancamentos",
+                JSON.stringify(lancamentos)
+            );
+
+        }
+
+
+        // ==========================================
+        // EXCLUIR LANÇAMENTO
+        // ==========================================
+
+        function excluirLancamento(id) {
+
+            const confirmar =
+                confirm(
+                    "Deseja realmente excluir este lançamento?"
+                );
+
+            if (!confirmar) {
+                return;
+            }
+
+
+            lancamentos =
+                lancamentos.filter(
+                    lancamento =>
+                        lancamento.id !== id
+                );
+
+
+            salvarDados();
+
+            atualizarTela();
+
+        }
+
+
+        // ==========================================
+        // ATUALIZAR TELA
+        // ==========================================
+
+        function atualizarTela() {
+
+            listaLancamentos.innerHTML = "";
+
+
+            let receitas = 0;
+
+            let despesas = 0;
+
+
+            // Calcular valores
+
+            lancamentos.forEach(lancamento => {
+
+                if (lancamento.tipo === "receita") {
+
+                    receitas += lancamento.valor;
+
+                } else {
+
+                    despesas += lancamento.valor;
+
+                }
+
+            });
+
+
+            const resultado =
+                receitas - despesas;
+
+
+            // Atualizar resumo
+
+            totalReceitas.textContent =
+                formatarMoeda(receitas);
+
+            totalDespesas.textContent =
+                formatarMoeda(despesas);
+
+            saldo.textContent =
+                formatarMoeda(resultado);
+
+
+            // Se não houver dados
+
+            if (lancamentos.length === 0) {
+
+                listaLancamentos.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="sem-dados"
+                        >
+                            Nenhum lançamento cadastrado.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+
+            }
+
+
+            // Ordenar por data
+
+            const ordenados =
+                [...lancamentos].sort(
+                    (a, b) =>
+                        new Date(b.data) -
+                        new Date(a.data)
+                );
+
+
+            // Criar linhas
+
+            ordenados.forEach(lancamento => {
+
+                const tr =
+                    document.createElement("tr");
+
+
+                const classeTipo =
+                    lancamento.tipo === "receita"
+                        ? "tipo-receita"
+                        : "tipo-despesa";
+
+
+                const textoTipo =
+                    lancamento.tipo === "receita"
+                        ? "Receita"
+                        : "Despesa";
+
+
+                tr.innerHTML = `
+
+                    <td>
+                        ${formatarData(lancamento.data)}
+                    </td>
+
+                    <td>
+                        ${lancamento.descricao}
+                    </td>
+
+                    <td>
+                        ${lancamento.categoria}
+                    </td>
+
+                    <td class="${classeTipo}">
+                        ${textoTipo}
+                    </td>
+
+                    <td class="${classeTipo}">
+                        ${formatarMoeda(lancamento.valor)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="btn-excluir"
+                            onclick="excluirLancamento(${lancamento.id})"
+                        >
+                            Excluir
+                        </button>
+
+                    </td>
+
+                `;
+
+
+                listaLancamentos.appendChild(tr);
+
+            });
+
+        }
+
+
+        // ==========================================
+        // INICIAR SISTEMA
+        // ==========================================
+
+        atualizarTela();
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.topo {
+    background: #1f2937;
+    color: white;
+    padding: 25px 20px;
+}
+
+.topo h1 {
+    margin-bottom: 5px;
+}
+
+.topo p {
+    color: #d1d5db;
+}
+
+.container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 25px auto;
+}
+
+
+/* DASHBOARD */
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card-dashboard {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card-dashboard span {
+    display: block;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.card-dashboard strong {
+    font-size: 26px;
+}
+
+
+/* CARD */
+
+.card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+    margin-bottom: 20px;
+}
+
+
+/* FORM */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+}
+
+.campo-largo {
+    grid-column: span 2;
+}
+
+.campo label {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.campo input,
+.campo select,
+.campo-pesquisa {
+    padding: 11px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo-pesquisa:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+
+/* BOTÕES */
+
+.acoes,
+.acoes-json {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.btn {
+    border: none;
+    padding: 11px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-success {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+
+/* TÍTULO */
+
+.titulo-secao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.campo-pesquisa {
+    width: 300px;
+}
+
+
+/* TABELAS */
+
+.tabela-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background: #f3f4f6;
+}
+
+tbody tr:hover {
+    background: #f9fafb;
+}
+
+
+/* BADGES */
+
+.badge {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-entrada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-saida {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-estoque {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-baixo {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-zero {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* AÇÕES DA TABELA */
+
+.btn-small {
+    padding: 6px 9px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 4px;
+}
+
+.btn-editar {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-excluir {
+    background: #dc2626;
+    color: white;
+}
+
+
+/* MENSAGEM */
+
+.mensagem-vazia {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+}
+
+
+/* JSON */
+
+#jsonVisualizacao {
+    margin-top: 20px;
+    background: #111827;
+    color: #e5e7eb;
+    padding: 20px;
+    border-radius: 8px;
+    overflow: auto;
+    max-height: 400px;
+    font-size: 13px;
+}
+
+.btn-arquivo {
+    display: inline-block;
+}
+
+
+/* FOOTER */
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+}
+
+
+/* RESPONSIVO */
+
+@media (max-width: 1000px) {
+
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .campo-largo {
+        grid-column: span 1;
+    }
+
+    .titulo-secao {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .campo-pesquisa {
+        width: 100%;
+    }
+
+    .card {
+        padding: 15px;
+    }
+}
