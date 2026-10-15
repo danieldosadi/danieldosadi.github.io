@@ -92,3 +92,4 @@ nav a{display:flex;align-items:center;min-height:44px}
  .hero h1{overflow-wrap:anywhere}
  .eyebrow{overflow-wrap:anywhere}
 }
+@media(max-width:600px){.hero .actions .resume-link{grid-column:1/-1}}
