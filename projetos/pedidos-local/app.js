@@ -140,7 +140,7 @@
             }
         ];
 
-        menuItems.push(...[{"id":13,"name":"Suco 300 ml","category":"bebidas","price":8,"description":"Suco natural de laranja, preparado na hora. Copo de 300 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]},{"id":14,"name":"Suco 500 ml","category":"bebidas","price":12,"description":"Suco natural de laranja, preparado na hora. Copo de 500 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]}]);
+        menuItems.splice(menuItems.findIndex(item=>item.category==='bebidas'),0,...[{"id":13,"name":"Suco 300 ml","category":"bebidas","price":8,"description":"Suco natural de laranja, preparado na hora. Copo de 300 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]},{"id":14,"name":"Suco 500 ml","category":"bebidas","price":12,"description":"Suco natural de laranja, preparado na hora. Copo de 500 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]}]);
         let tableNumber = "";
         let clientName = "";
         let cart = [];
