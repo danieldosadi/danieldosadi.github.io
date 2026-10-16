@@ -203,11 +203,12 @@
 
         // Filtro de Categorias
         function filterCategory(cat) {
-            document.querySelectorAll('.category-btn').forEach(b => {
-                b.classList.remove('bg-terracota-600', 'text-white', 'shadow-md', 'shadow-terracota-600/20');
-                b.classList.add('bg-white', 'text-stone-700', 'border-cream-300');
+            document.querySelectorAll('.category-btn').forEach(button=>{
+                const selected=button.getAttribute('onclick').includes("'"+cat+"'");
+                button.classList.toggle('active',selected);
+                button.setAttribute('aria-pressed',String(selected));
+                button.classList.remove('bg-terracota-600','text-white','shadow-md','shadow-terracota-600/20','bg-white','text-stone-700');
             });
-            event.currentTarget.classList.add('bg-terracota-600', 'text-white', 'shadow-md', 'shadow-terracota-600/20');
             renderMenu(cat);
         }
 
