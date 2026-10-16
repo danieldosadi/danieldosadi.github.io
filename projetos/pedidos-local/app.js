@@ -414,6 +414,7 @@ let tableNumber = "";
 
             const cartItem = {
                 cartId: Date.now() + Math.random(),
+                productId: currentSelectedItem.id,
                 name: currentSelectedItem.name,
                 unitPrice: unitPrice,
                 quantity: modalQty,
