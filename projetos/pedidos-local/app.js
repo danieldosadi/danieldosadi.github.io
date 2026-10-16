@@ -141,7 +141,9 @@
         ];
 
         menuItems.splice(menuItems.findIndex(item=>item.category==='bebidas'),0,...[{"id":13,"name":"Suco 300 ml","category":"bebidas","price":8,"description":"Suco natural de laranja, preparado na hora. Copo de 300 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]},{"id":14,"name":"Suco 500 ml","category":"bebidas","price":12,"description":"Suco natural de laranja, preparado na hora. Copo de 500 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]}]);
-        let tableNumber = "";
+        const juiceFlavors=[{name:'Laranja',ingredients:'Laranja espremida, sem adição de água.'},{name:'Acerola',ingredients:'Polpa de acerola batida com água.'},{name:'Uva',ingredients:'Suco integral de uva, sem adição de água.'},{name:'Morango',ingredients:'Morango batido com água.'},{name:'Detox',ingredients:'Couve, abacaxi, limão, gengibre e água.'}];
+menuItems.filter(item=>[8,13,14].includes(item.id)).forEach(item=>{item.isJuice=true;item.name=item.id===8?'Suco 1 L':item.name;item.description='Escolha o sabor: Laranja, Acerola, Uva, Morango ou Detox. Veja a composição em Escolher / Opções.';});
+let tableNumber = "";
         let clientName = "";
         let cart = [];
         let activeOrders = [];
@@ -256,6 +258,8 @@
                 optionsContainer.classList.add('hidden');
             }
 
+            const flavors=document.getElementById('juice-flavor-box');flavors.replaceChildren();flavors.hidden=!currentSelectedItem.isJuice;
+            if(currentSelectedItem.isJuice){const legend=document.createElement('legend');legend.textContent='Escolha o sabor';legend.className='font-bold text-terracota-800 mb-2';flavors.append(legend);for(const flavor of juiceFlavors){const label=document.createElement('label');label.className='juice-flavor';const radio=document.createElement('input');radio.type='radio';radio.name='juice-flavor';radio.value=flavor.name;const details=document.createElement('span'),name=document.createElement('strong'),description=document.createElement('small');name.textContent=flavor.name;description.textContent=flavor.ingredients;details.append(name,description);label.append(radio,details);flavors.append(label);}const note=document.createElement('p');note.textContent='Mesmo preço para todos os sabores. Açúcar e gelo podem ser ajustados nas opções e observações.';note.className='text-xs text-stone-500 mt-2';flavors.append(note);}
             updateModalTotal();
 
             const modal = document.getElementById('item-modal');
@@ -295,6 +299,7 @@
         function addCurrentItemToCart() {
             let unitPrice = currentSelectedItem.price;
             const selectedOpts = [];
+            if(currentSelectedItem.isJuice){const flavor=document.querySelector('input[name="juice-flavor"]:checked');if(!flavor){showCustomAlert('Escolha o sabor','Selecione Laranja, Acerola, Uva, Morango ou Detox antes de adicionar.','warning');return;}selectedOpts.push('Sabor: '+flavor.value);}
 
             // Adiciona escolha do feijão se aplicável
             if (currentSelectedItem.hasBeanChoice) {
