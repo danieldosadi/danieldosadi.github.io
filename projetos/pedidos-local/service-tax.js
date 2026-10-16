@@ -1,7 +1,7 @@
-let serviceTaxEnabled=true;try{serviceTaxEnabled=localStorage.getItem('sabor-de-casa-service-tax')!=='false';}catch{}
+let serviceTaxEnabled=true;
 function serviceTaxAmount(subtotal){return serviceTaxEnabled?Math.round(subtotal*10)/100:0;}
 function serviceCurrency(value){return value.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
-function taxControl(id){const label=document.createElement('label');label.className='service-tax-option';const input=document.createElement('input');input.type='checkbox';input.id=id;input.checked=serviceTaxEnabled;const text=document.createElement('span');text.textContent='Incluir taxa de serviço (10%)';label.append(input,text);input.onchange=()=>{serviceTaxEnabled=input.checked;try{localStorage.setItem('sabor-de-casa-service-tax',String(serviceTaxEnabled));}catch{}updateCartUI();updateCheckoutTax();};return label;}
+function taxControl(id){const label=document.createElement('label');label.className='service-tax-option';const input=document.createElement('input');input.type='checkbox';input.id=id;input.checked=serviceTaxEnabled;const text=document.createElement('span');text.textContent='Incluir taxa de serviço (10%)';label.append(input,text);input.onchange=()=>{serviceTaxEnabled=input.checked;updateCartUI();updateCheckoutTax();};return label;}
 document.getElementById('cart-summary-box').prepend(taxControl('cart-service-tax'));
 const checkoutValue=document.getElementById('checkout-total-val');checkoutValue.parentElement.append(taxControl('checkout-service-tax'));
 accountTotal=function(){const subtotal=activeOrders.reduce((sum,order)=>sum+order.items.reduce((total,item)=>total+item.total,0),0);return Math.round((subtotal+serviceTaxAmount(subtotal))*100)/100;};
