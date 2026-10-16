@@ -598,5 +598,5 @@ try{const saved=JSON.parse(localStorage.getItem(RESTAURANT_KEY));if(saved&&Array
 document.getElementById('client-name-input').maxLength=80;document.getElementById('modal-item-obs').maxLength=240;
 renderMenu('todos');updateCartUI();renderActiveOrders();
 
-const navigationHeader=document.getElementById('site-header'),navigationCategories=document.getElementById('category-navigation');function sizeNavigation(){document.documentElement.style.setProperty('--header-height',navigationHeader.getBoundingClientRect().height+'px');document.documentElement.style.setProperty('--categories-height',navigationCategories.getBoundingClientRect().height+'px');}new ResizeObserver(sizeNavigation).observe(navigationHeader);new ResizeObserver(sizeNavigation).observe(navigationCategories);sizeNavigation();
+const navigationHeader=document.getElementById('site-header'),navigationCategories=document.getElementById('category-navigation');function sizeNavigation(){document.documentElement.style.setProperty('--header-height',navigationHeader.getBoundingClientRect().height+'px');document.documentElement.style.setProperty('--categories-height','0px');}new ResizeObserver(sizeNavigation).observe(navigationHeader);new ResizeObserver(sizeNavigation).observe(navigationCategories);sizeNavigation();
 
