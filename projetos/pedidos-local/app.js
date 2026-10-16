@@ -299,6 +299,7 @@ let tableNumber = "";
         function addCurrentItemToCart() {
             let unitPrice = currentSelectedItem.price;
             const selectedOpts = [];
+            if(currentSelectedItem.sodaSize){const soda=document.querySelector('[name="soda-choice"]:checked');if(!soda){showCustomAlert('Escolha o refrigerante','Selecione a marca e a versão antes de adicionar.','warning');return;}selectedOpts.push(soda.value);}
             if(currentSelectedItem.isJuice){const flavor=document.querySelector('input[name="juice-flavor"]:checked');if(!flavor){showCustomAlert('Escolha o sabor','Selecione Laranja, Acerola, Uva, Morango ou Detox antes de adicionar.','warning');return;}if(!juiceReady||!juiceOptionsValid()){showCustomAlert('Complete as opções','Escolha as opções da bebida e clique em Continuar para observação.','warning');return;}selectedOpts.push('Sabor: '+flavor.value);const water=document.querySelector('[name=juice-water]:checked');if(water)selectedOpts.push('Água: '+water.value);document.querySelectorAll('[name=juice-remove]:checked').forEach(input=>selectedOpts.push('Sem '+input.value.toLowerCase()));selectedOpts.push(document.querySelector('[name=juice-ice]:checked').value);selectedOpts.push('Copos 180 ml: '+document.getElementById('juice-cups').value);}
 
             // Adiciona escolha do feijão se aplicável
