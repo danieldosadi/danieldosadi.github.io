@@ -242,7 +242,7 @@ let tableNumber = "";
 
             if (currentSelectedItem.options && currentSelectedItem.options.length > 0) {
                 optionsContainer.classList.remove('hidden');
-                currentSelectedItem.options.forEach(opt => {
+                currentSelectedItem.options.filter(opt=>!currentSelectedItem.isJuice).forEach(opt => {
                     const label = document.createElement('label');
                     label.className = "flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:border-terracota-500 transition-all";
                     label.innerHTML = `
@@ -299,7 +299,7 @@ let tableNumber = "";
         function addCurrentItemToCart() {
             let unitPrice = currentSelectedItem.price;
             const selectedOpts = [];
-            if(currentSelectedItem.isJuice){const flavor=document.querySelector('input[name="juice-flavor"]:checked');if(!flavor){showCustomAlert('Escolha o sabor','Selecione Laranja, Acerola, Uva, Morango ou Detox antes de adicionar.','warning');return;}selectedOpts.push('Sabor: '+flavor.value);}
+            if(currentSelectedItem.isJuice){const flavor=document.querySelector('input[name="juice-flavor"]:checked');if(!flavor){showCustomAlert('Escolha o sabor','Selecione Laranja, Acerola, Uva, Morango ou Detox antes de adicionar.','warning');return;}if(!juiceReady||!juiceOptionsValid()){showCustomAlert('Complete as opções','Escolha as opções da bebida e clique em Continuar para observação.','warning');return;}selectedOpts.push('Sabor: '+flavor.value);const water=document.querySelector('[name=juice-water]:checked');if(water)selectedOpts.push('Água: '+water.value);document.querySelectorAll('[name=juice-remove]:checked').forEach(input=>selectedOpts.push('Sem '+input.value.toLowerCase()));selectedOpts.push(document.querySelector('[name=juice-ice]:checked').value);selectedOpts.push('Copos 180 ml: '+document.getElementById('juice-cups').value);}
 
             // Adiciona escolha do feijão se aplicável
             if (currentSelectedItem.hasBeanChoice) {
