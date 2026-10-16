@@ -1,2 +1,456 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Balcão Café: demonstração de pedidos no local em HTML, CSS e JavaScript."><title>Balcão Café • Pedidos no Local</title><link rel="stylesheet" href="styles.css"><script src="app.js" defer></script></head><body><a class="skip" href="#conteudo">Pular para o conteúdo</a><header><a class="brand" href="./"><span aria-hidden="true">☕</span> Balcão <b>Café</b></a><nav aria-label="Navegação"><a href="../../#projetos">Portfólio</a><a href="documentacao.html">Documentação</a></nav></header><div class="notice">Demonstração · pedidos ficam somente neste navegador. Nenhum pagamento ou envio à cozinha é realizado.</div><main id="conteudo"><section class="intro"><div><p class="eyebrow">FEITO NA HORA, COM CALMA.</p><h1>Uma pausa que pede café.</h1><p>Escolha sua mesa, monte o pedido e aproveite o momento.</p></div><span class="intro-mark" aria-hidden="true">☕</span></section><div class="tabs" role="group" aria-label="Área do aplicativo"><button id="menuTab" aria-pressed="true">Cardápio</button><button id="ordersTab" aria-pressed="false">Pedidos <span id="orderCount">0</span></button></div><p id="feedback" role="status" hidden></p><section id="menuPanel" class="layout"><div><div class="menu-toolbar"><h2>O que vai ser hoje?</h2><label class="sr-only" for="search">Buscar no cardápio</label><input id="search" type="search" placeholder="Buscar no cardápio…"></div><div id="categories" class="categories" role="group" aria-label="Categorias"></div><div id="products" class="products"></div></div><aside class="cart"><div class="cart-title"><h2>Seu pedido</h2><span id="cartCount" class="pill">0 itens</span></div><label for="table">Mesa</label><select id="table"><option value="">Selecione a mesa</option></select><div id="cartItems" class="cart-items"></div><label for="notes">Observações <small>(opcional)</small></label><textarea id="notes" maxlength="240" rows="2" placeholder="Ex.: sem açúcar, retirar cebola…"></textarea><div class="total"><span>Total</span><strong id="total">R$ 0,00</strong></div><button id="submitOrder" class="primary" disabled>Confirmar pedido</button><small class="cart-hint">Pedido de demonstração. Valores ilustrativos.</small></aside></section><section id="ordersPanel" hidden><div class="menu-toolbar"><div><h2>Pedidos no balcão</h2><p class="muted">Simule o andamento usando os botões de cada pedido.</p></div><label>Filtrar por status<select id="statusFilter"><option value="">Todos</option><option>Recebido</option><option>Em preparo</option><option>Pronto</option><option>Entregue</option><option>Cancelado</option></select></label></div><div id="orders" class="orders"></div></section></main><footer>Balcão Café · Projeto de Daniel Dias · HTML, CSS e JavaScript</footer></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comanda Digital • Sabor de Casa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Playfair & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        terracota: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#c2410c',
+                            600: '#9a3412',
+                            700: '#7c2d12',
+                            800: '#431407',
+                        },
+                        cream: {
+                            50: '#fefcf8',
+                            100: '#fcf8f0',
+                            200: '#f7f0e1',
+                            300: '#ebdcc3',
+                        },
+                        leaf: {
+                            600: '#15803d',
+                            700: '#166534',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-cream-100 text-stone-800 font-sans antialiased flex flex-col selection:bg-amber-200">
+<aside class="bg-terracota-800 text-cream-100 text-xs px-4 py-2 flex flex-wrap justify-between gap-2"><span>Demonstração pública · pedidos salvos apenas neste navegador · nenhum pagamento ou envio real.</span><span><a class="underline mr-4" href="../../#projetos">Portfólio</a><a class="underline" href="documentacao.html">Documentação</a></span></aside>
 
+    <!-- Modal Inicial: Escolha da Mesa ou Balcão -->
+    <div id="table-modal" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-cream-50 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-terracota-100 text-center animate-fadeIn">
+            <div class="w-20 h-20 bg-terracota-100 text-terracota-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                <i class="fa-solid fa-fire-burner"></i>
+            </div>
+            
+            <h2 class="text-2xl sm:text-3xl font-bold font-display text-terracota-800 mb-1">Restaurante Sabor de Casa</h2>
+            <p class="text-stone-600 text-sm mb-6">Comidinha caseira no fogão a lenha. Seja bem-vindo(a)!</p>
+            
+            <form id="table-form" onsubmit="initSession(event)" class="space-y-5 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-terracota-700 uppercase tracking-wider mb-2">Onde você está sentado(a)?</label>
+                    <select id="table-select" required class="w-full px-4 py-3.5 bg-white border-2 border-stone-200 rounded-2xl focus:outline-none focus:border-terracota-500 font-semibold text-stone-800 text-base shadow-sm">
+                        <option value="" disabled selected>Selecione a Mesa ou Balcão...</option>
+                        <option value="Mesa 01">Mesa 01</option>
+                        <option value="Mesa 02">Mesa 02</option>
+                        <option value="Mesa 03">Mesa 03</option>
+                        <option value="Mesa 04">Mesa 04</option>
+                        <option value="Mesa 05">Mesa 05</option>
+                        <option value="Mesa 06">Mesa 06</option>
+                        <option value="Mesa 07">Mesa 07</option>
+                        <option value="Mesa 08">Mesa 08</option>
+                        <option value="Mesa 09">Mesa 09</option>
+                        <option value="Mesa 10">Mesa 10</option>
+                        <option value="Mesa 11">Mesa 11</option>
+                        <option value="Mesa 12">Mesa 12</option>
+                        <option value="Mesa 13">Mesa 13</option>
+                        <option value="Mesa 14">Mesa 14</option>
+                        <option value="Mesa 15">Mesa 15</option>
+                        <option value="Balcão">Balcão / Viagem Presencial</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-terracota-700 uppercase tracking-wider mb-2">Seu Nome (Opcional)</label>
+                    <input type="text" id="client-name-input" placeholder="Ex: Maria José" 
+                        class="w-full px-4 py-3.5 bg-white border-2 border-stone-200 rounded-2xl focus:outline-none focus:border-terracota-500 font-medium text-stone-800 text-base shadow-sm">
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-terracota-600 hover:bg-terracota-700 text-white font-bold font-display text-lg rounded-2xl shadow-lg shadow-terracota-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>Abrir Cardápio</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header Fixo do App -->
+    <header class="bg-cream-50 border-b border-cream-300 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-terracota-600 text-cream-50 flex items-center justify-center font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-pot-food"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg sm:text-xl font-bold text-terracota-800 leading-tight">Sabor de Casa</h1>
+                    <div class="flex items-center gap-2 text-xs text-stone-600">
+                        <span id="display-table" class="font-bold text-terracota-700 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200">Mesa --</span>
+                        <span id="display-client" class="truncate max-w-[120px] font-medium"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Botão Chamar Garçom -->
+                <button onclick="callWaiter()" class="px-3.5 py-2.5 bg-amber-100 hover:bg-amber-200 text-terracota-800 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors border border-amber-200">
+                    <i class="fa-solid fa-bell text-amber-600 text-sm"></i>
+                    <span class="hidden sm:inline">Atendimento</span>
+                </button>
+                
+                <!-- Botão Pedir Conta -->
+                <button onclick="openCheckoutModal()" class="px-3.5 py-2.5 bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-colors shadow-sm">
+                    <i class="fa-solid fa-receipt text-sm"></i>
+                    <span class="hidden sm:inline">Pagar Conta</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 pb-32">
+        
+        <!-- Banner de Boas-Vindas -->
+        <div class="bg-gradient-to-r from-terracota-600 to-amber-600 rounded-2xl p-4 sm:p-6 text-white mb-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+                <span class="bg-amber-200 text-terracota-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Fogão a Lenha Acesos</span>
+                <h2 class="text-xl sm:text-2xl font-bold font-display mt-2">Comidinha Fresquinha Feita com Amor</h2>
+                <p class="text-cream-100 text-xs sm:text-sm mt-1">Todos os pratos acompanham arroz caseiro, feijão fresquinho e salada da horta.</p>
+            </div>
+            <i class="fa-solid fa-mortar-pestle text-4xl sm:text-5xl opacity-40 self-end sm:self-center"></i>
+        </div>
+
+        <!-- Rastreamento de Pedidos Enviados -->
+        <div id="active-orders-section" class="mb-6 hidden">
+            <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-terracota-800 text-sm flex items-center gap-2 font-display">
+                        <i class="fa-solid fa-kitchen-set"></i> Pedidos na Cozinha
+                    </h3>
+                    <span class="text-xs text-amber-800 bg-amber-200 px-2.5 py-0.5 rounded-full font-bold">Simulação</span>
+                </div>
+                <div id="active-orders-list" class="space-y-2">
+                    <!-- Dinâmico via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Categorias Simples e Claras -->
+        <div class="sticky top-[68px] bg-cream-100/95 backdrop-blur-md pt-2 pb-4 z-20">
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <button onclick="filterCategory('todos')" class="category-btn active px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-terracota-600 text-white shadow-md shadow-terracota-600/20">
+                    <i class="fa-solid fa-utensils mr-1.5"></i> Cardápio Todo
+                </button>
+                <button onclick="filterCategory('pratos-dia')" class="category-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-stone-700 hover:bg-cream-200 border border-cream-300">
+                    🔥 Pratos do Dia
+                </button>
+                <button onclick="filterCategory('executivos')" class="category-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-stone-700 hover:bg-cream-200 border border-cream-300">
+                    🍱 Prato Feito / Executivo
+                </button>
+                <button onclick="filterCategory('acompanhamentos')" class="category-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-stone-700 hover:bg-cream-200 border border-cream-300">
+                    🍟 Acompanhamentos
+                </button>
+                <button onclick="filterCategory('bebidas')" class="category-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-stone-700 hover:bg-cream-200 border border-cream-300">
+                    🥤 Sucos & Bebidas
+                </button>
+                <button onclick="filterCategory('sobremesas')" class="category-btn px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-stone-700 hover:bg-cream-200 border border-cream-300">
+                    Pudim & Doce
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid do Cardápio -->
+        <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+            <!-- Gerado via JS -->
+        </div>
+
+    </main>
+
+    <!-- Barra Flutuante Inferior do Carrinho -->
+    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-cream-300 p-4 shadow-2xl z-30 transition-transform duration-300 transform translate-y-full">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <div class="relative bg-amber-100 text-terracota-700 w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl shadow-inner">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-terracota-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold border-2 border-white">0</span>
+                </div>
+                <div>
+                    <p class="text-xs text-stone-500 font-semibold uppercase">Total da Comanda</p>
+                    <p id="cart-total-price" class="text-lg font-bold text-stone-900">R$ 0,00</p>
+                </div>
+            </div>
+            
+            <button onclick="openCartModal()" class="px-5 py-3.5 bg-terracota-600 hover:bg-terracota-700 text-white font-bold font-display text-sm rounded-2xl shadow-lg shadow-terracota-600/30 transition-all flex items-center gap-2">
+                <span>Ver Comanda</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Personalização do Prato -->
+    <div id="item-modal" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-cream-50 rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col border-2 border-cream-300 animate-slideUp">
+            <div class="relative h-52 sm:h-60 w-full bg-stone-100">
+                <img id="modal-item-img" src="" alt="Prato" class="w-full h-full object-cover">
+                <button onclick="closeItemModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/90 text-stone-800 rounded-full flex items-center justify-center shadow-md font-bold text-lg hover:bg-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 flex-1 flex flex-col">
+                <div class="flex justify-between items-start gap-4 mb-2">
+                    <h3 id="modal-item-name" class="text-xl sm:text-2xl font-bold font-display text-terracota-800">Nome do Prato</h3>
+                    <span id="modal-item-price" class="text-xl font-bold text-terracota-600 whitespace-nowrap">R$ 0,00</span>
+                </div>
+                <p id="modal-item-desc" class="text-stone-600 text-sm mb-6">Descrição detalhada do prato caseiro.</p>
+
+                <!-- Opções de Personalização Caseira -->
+                <div id="modal-customizations" class="space-y-4 mb-6">
+                    
+                    <!-- Escolha do Feijão -->
+                    <div id="bean-selection-box" class="border-t border-cream-300 pt-4 hidden">
+                        <label class="block text-xs font-bold text-terracota-700 uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-bowl-rice"></i> Escolha o Feijão (Incluso)
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:border-terracota-500">
+                                <input type="radio" name="bean-choice" value="Feijão Carioca" checked class="w-4 h-4 text-terracota-600 focus:ring-terracota-500">
+                                <span class="ml-2 text-xs sm:text-sm font-semibold text-stone-700">Feijão Carioca</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:border-terracota-500">
+                                <input type="radio" name="bean-choice" value="Feijão Preto" class="w-4 h-4 text-terracota-600 focus:ring-terracota-500">
+                                <span class="ml-2 text-xs sm:text-sm font-semibold text-stone-700">Feijão Preto</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Opcionais Extras -->
+                    <div id="modal-options-container" class="border-t border-cream-300 pt-4 hidden">
+                        <label class="block text-xs font-bold text-terracota-700 uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-plus-circle"></i> Acompanhamentos Extras
+                        </label>
+                        <div id="modal-options-list" class="space-y-2">
+                            <!-- JS insere os itens -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observação do Cliente -->
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-terracota-700 uppercase tracking-wider mb-2">Observação para a Cozinha</label>
+                    <input type="text" id="modal-item-obs" placeholder="Ex: Capricha no alho, sem cebola na salada..." 
+                        class="w-full px-4 py-3 bg-white border-2 border-stone-200 rounded-xl focus:outline-none focus:border-terracota-500 text-stone-800 text-sm">
+                </div>
+
+                <!-- Quantidade e Botão -->
+                <div class="flex items-center gap-4 mt-auto pt-4 border-t border-cream-300">
+                    <div class="flex items-center border-2 border-stone-200 rounded-2xl bg-white">
+                        <button onclick="adjustModalQty(-1)" class="w-11 h-12 flex items-center justify-center text-stone-700 font-bold hover:bg-stone-100 rounded-l-2xl text-lg">-</button>
+                        <span id="modal-qty" class="w-10 text-center font-bold text-stone-900">1</span>
+                        <button onclick="adjustModalQty(1)" class="w-11 h-12 flex items-center justify-center text-stone-700 font-bold hover:bg-stone-100 rounded-r-2xl text-lg">+</button>
+                    </div>
+                    
+                    <button id="modal-add-btn" onclick="addCurrentItemToCart()" class="flex-1 py-4 bg-terracota-600 hover:bg-terracota-700 text-white font-bold font-display rounded-2xl shadow-lg shadow-terracota-600/30 transition-all flex items-center justify-between px-5">
+                        <span>Adicionar</span>
+                        <span id="modal-total-btn" class="bg-terracota-800/40 px-3 py-1 rounded-lg text-sm">R$ 0,00</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal do Resumo da Comanda da Mesa -->
+    <div id="cart-modal" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-cream-50 rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col border-2 border-cream-300 animate-slideUp">
+            <div class="p-5 border-b border-cream-300 flex items-center justify-between sticky top-0 bg-cream-50 z-10">
+                <div>
+                    <h3 class="text-xl font-bold font-display text-terracota-800">Comanda da Mesa</h3>
+                    <p id="cart-modal-subtitle" class="text-xs text-stone-600 font-semibold">Mesa 01</p>
+                </div>
+                <button onclick="closeCartModal()" class="w-9 h-9 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-full flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 flex-1 overflow-y-auto space-y-4">
+                <div id="cart-items-container" class="divide-y divide-cream-300">
+                    <!-- Itens via JS -->
+                </div>
+
+                <div id="cart-empty-state" class="text-center py-10 hidden">
+                    <div class="w-16 h-16 bg-cream-200 text-terracota-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <p class="text-stone-800 font-bold font-display text-lg">Sua comanda está vazia</p>
+                    <p class="text-stone-500 text-xs mt-1">Escolha um prato gostoso no cardápio para pedir!</p>
+                </div>
+
+                <!-- Resumo dos Valores -->
+                <div id="cart-summary-box" class="bg-white rounded-2xl p-4 border border-stone-200 space-y-2 mt-4">
+                    <div class="flex justify-between text-sm text-stone-600">
+                        <span>Consumo de Pratos / Bebidas</span>
+                        <span id="summary-subtotal" class="font-semibold text-stone-800">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-stone-600">
+                        <span>Taxa de Serviço Garçom (10%)</span>
+                        <span id="summary-service" class="font-semibold text-stone-800">R$ 0,00</span>
+                    </div>
+                    <div class="border-t border-stone-200 pt-2 flex justify-between text-base font-bold text-stone-900">
+                        <span>Total Geral</span>
+                        <span id="summary-total" class="text-terracota-600 text-lg">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-cream-300 bg-cream-100 rounded-b-3xl sm:rounded-b-2xl flex flex-col gap-2">
+                <button onclick="sendOrderToKitchen()" id="send-order-btn" class="w-full py-4 bg-terracota-600 hover:bg-terracota-700 text-white font-bold font-display rounded-2xl shadow-lg shadow-terracota-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-fire-burner"></i>
+                    <span>Mandar Pedido para o Fogão / Cozinha</span>
+                </button>
+                <button onclick="openCheckoutModal()" class="w-full py-3 bg-leaf-600 hover:bg-leaf-700 text-white font-bold rounded-2xl transition-all text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Ir para Pagamento / Fechar Mesa</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Fechamento da Comanda & Pagamento -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-cream-50 rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col border-2 border-cream-300 animate-slideUp">
+            <div class="p-5 border-b border-cream-300 flex items-center justify-between sticky top-0 bg-cream-50 z-10">
+                <div>
+                    <h3 class="text-xl font-bold font-display text-terracota-800">Simulação da conta</h3>
+                    <p class="text-xs text-stone-600 font-semibold">Simule o fechamento da conta — sem cobrança real</p>
+                </div>
+                <button onclick="closeCheckoutModal()" class="w-9 h-9 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-full flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 flex-1 space-y-6">
+                <!-- Resumo da Conta -->
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-center">
+                    <p class="text-xs text-stone-500 uppercase font-bold">Total da conta demonstrativa</p>
+                    <p id="checkout-total-val" class="text-3xl font-bold font-display text-terracota-700 my-1">R$ 0,00</p>
+                    <p class="text-xs text-amber-800 font-medium">Incluso consumação + taxa de serviço (10%)</p>
+                </div>
+
+                <!-- Formas de Pagamento -->
+                <div>
+                    <label class="block text-xs font-bold text-terracota-700 uppercase tracking-wider mb-3">Forma de Pagamento</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="selectPaymentMethod('pix')" id="pay-btn-pix" class="pay-method-btn p-3 rounded-2xl border-2 border-stone-200 bg-white hover:border-terracota-500 flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-brands fa-pix text-emerald-600 text-2xl"></i>
+                            <span class="text-xs font-bold text-stone-700">PIX</span>
+                        </button>
+
+                        <button type="button" onclick="selectPaymentMethod('card')" id="pay-btn-card" class="pay-method-btn p-3 rounded-2xl border-2 border-stone-200 bg-white hover:border-terracota-500 flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-solid fa-credit-card text-blue-600 text-2xl"></i>
+                            <span class="text-xs font-bold text-stone-700">Cartão na Mesa</span>
+                        </button>
+
+                        <button type="button" onclick="selectPaymentMethod('cash')" id="pay-btn-cash" class="pay-method-btn p-3 rounded-2xl border-2 border-stone-200 bg-white hover:border-terracota-500 flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-solid fa-money-bill-wave text-amber-600 text-2xl"></i>
+                            <span class="text-xs font-bold text-stone-700">Dinheiro</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Área Dinâmica do Pagamento -->
+                <div id="payment-details-area" class="bg-white p-5 rounded-2xl border border-stone-200 hidden">
+                    
+                    <!-- PIX -->
+                    <div id="payment-pix-details" class="text-center space-y-3 hidden">
+                        <p class="text-xs text-stone-600 font-medium">Exemplo visual de PIX. Não escaneie nem realize pagamentos.</p>
+                        <div class="bg-stone-50 p-3 rounded-xl inline-block border border-stone-200">
+                            <!-- QR Code Fictício em SVG -->
+                            <svg class="w-40 h-40 mx-auto" viewBox="0 0 100 100" fill="none">
+                                <rect width="100" height="100" fill="white"/>
+                                <rect x="10" y="10" width="30" height="30" fill="#15803d"/>
+                                <rect x="15" y="15" width="20" height="20" fill="white"/>
+                                <rect x="20" y="20" width="10" height="10" fill="#15803d"/>
+                                <rect x="60" y="10" width="30" height="30" fill="#15803d"/>
+                                <rect x="65" y="15" width="20" height="20" fill="white"/>
+                                <rect x="70" y="20" width="10" height="10" fill="#15803d"/>
+                                <rect x="10" y="60" width="30" height="30" fill="#15803d"/>
+                                <rect x="15" y="65" width="20" height="20" fill="white"/>
+                                <rect x="20" y="70" width="10" height="10" fill="#15803d"/>
+                                <rect x="45" y="15" width="8" height="25" fill="#15803d"/>
+                                <rect x="50" y="50" width="25" height="10" fill="#15803d"/>
+                                <rect x="60" y="65" width="25" height="25" fill="#15803d"/>
+                            </svg>
+                        </div>
+                        <button onclick="copyPixCode()" class="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl border border-stone-300 flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>PIX demonstrativo — sem cobrança</span>
+                        </button>
+                    </div>
+
+                    <!-- Cartão -->
+                    <div id="payment-card-details" class="text-center space-y-2 hidden">
+                        <i class="fa-solid fa-cash-register text-3xl text-blue-600 mb-1"></i>
+                        <h4 class="font-bold text-stone-800 text-sm">O garçom trará a maquininha</h4>
+                        <p class="text-xs text-stone-500">Aceitamos débito, crédito e vale-refeição (Alelo, Sodexo, Ticket, VR).</p>
+                    </div>
+
+                    <!-- Dinheiro -->
+                    <div id="payment-cash-details" class="space-y-3 hidden">
+                        <label class="block text-xs font-bold text-stone-700">Vai precisar de troco para quanto?</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-400 font-bold">R$</span>
+                            <input type="number" id="cash-change-input" placeholder="Ex: 50,00 (Deixe em branco se for valor exato)" 
+                                class="w-full pl-10 pr-4 py-3 bg-stone-50 border border-stone-300 rounded-xl focus:outline-none focus:border-terracota-500 font-semibold text-stone-800 text-sm">
+                        </div>
+                        <p class="text-[11px] text-stone-500 italic">O garçom já levará seu troco certinho até a mesa.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-cream-300 bg-cream-100 rounded-b-3xl sm:rounded-b-2xl">
+                <button onclick="finishPayment()" id="finish-pay-btn" disabled class="w-full py-4 bg-leaf-600 opacity-50 cursor-not-allowed hover:bg-leaf-700 text-white font-bold font-display rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Confirmar e Finalizar Mesa</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerta Personalizado -->
+    <div id="custom-alert" class="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-cream-50 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center border-2 border-cream-300 transform animate-fadeIn">
+            <div id="alert-icon" class="w-16 h-16 bg-amber-100 text-terracota-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 id="alert-title" class="text-xl font-bold font-display text-terracota-800 mb-1">Aviso</h3>
+            <p id="alert-message" class="text-stone-600 text-sm mb-6">Mensagem explicativa aqui.</p>
+            <button onclick="closeCustomAlert()" class="w-full py-3 bg-terracota-600 hover:bg-terracota-700 text-white font-bold font-display rounded-xl transition-all">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Integrado -->
+    <script src="app.js?v=2"></script>
+</body>
+</html>

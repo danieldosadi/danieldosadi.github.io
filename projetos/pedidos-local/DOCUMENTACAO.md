@@ -1,126 +1,71 @@
 # Pedidos no Local — documentação técnica e funcional
 
-Tema: Balcão Café · Autor: Daniel Dias · 16/10/2026
+Restaurante Sabor de Casa · Daniel Dias · 16/10/2026
 
 ## 1. Visão geral
 
-Aplicativo demonstrativo para montar pedidos em uma cafeteria e simular o acompanhamento no balcão. O usuário escolhe uma mesa, adiciona produtos, informa observações e confirma o pedido.
-
-Os dados ficam somente no navegador utilizado. Não há envio à cozinha, sincronização entre dispositivos, pagamento ou integração com estabelecimento real. Produtos e preços são ilustrativos.
+Comanda digital demonstrativa de restaurante de comida caseira, baseada no modelo fornecido pelo proprietário. Substitui o tema Balcão Café. Nenhum pedido, chamado de atendimento ou pagamento é transmitido a um estabelecimento real.
 
 ## 2. Tecnologias e ferramentas
 
-| Tecnologia | Uso |
-| --- | --- |
-| HTML5 | Estrutura, campos e navegação |
-| CSS3 | Tema de cafeteria, grades e adaptação a telas menores |
-| JavaScript | Cardápio, carrinho, validações e estados dos pedidos |
-| LocalStorage | Persistência local do carrinho e histórico de pedidos |
-| Google Fonts | Fontes DM Sans e Playfair Display, com fontes alternativas |
-| GitHub / GitHub Pages | Versionamento e publicação estática |
-
-Não utiliza framework, servidor próprio nem banco de dados remoto.
+HTML, CSS e JavaScript; Tailwind CSS via CDN; Font Awesome; fontes Fredoka e Inter; fotografias externas com alternativa; LocalStorage; GitHub e GitHub Pages.
 
 ## 3. Estrutura do site
 
-- Cabeçalho com acesso ao portfólio e à documentação.
-- Aviso de demonstração e identificação Balcão Café.
-- Cardápio com categorias, busca e preço de cada produto.
-- Carrinho com escolha de mesa, quantidades, observações e total.
-- Área de pedidos com histórico, filtro por status e ações de acompanhamento.
-
-Em telas amplas, cardápio e carrinho ficam lado a lado. Em telas menores, o carrinho aparece após o cardápio.
+Entrada com mesa de 01 a 15 ou balcão e nome opcional. Cabeçalho com identificação, atendimento e conta. Cardápio por categorias: pratos do dia, executivos, acompanhamentos, bebidas e doces. Janelas para opções do produto, comanda, fechamento e alertas. Visual terracota e creme conforme referência.
 
 ## 4. Acessibilidade
 
-A interface possui rótulos de campos, botões nativos, foco visível, link para pular ao conteúdo, indicação textual de status e mensagens de feedback. Botões de quantidade identificam o produto para tecnologias assistivas. Os ícones de alimentos são decorativos.
-
-Não houve auditoria WCAG completa. Devem ser avaliados contraste, zoom, leitores de tela e navegação por teclado em diferentes navegadores.
+Há títulos, textos descritivos, imagens com alternativas e campos nativos. Ainda é necessária auditoria de rótulos associados, foco, contenção de teclado nas janelas, contraste e leitura dos ícones. Não se declara conformidade WCAG.
 
 ## 5. Fluxos principais
 
-### Montar e confirmar pedido
+1. Escolher mesa ou balcão e informar nome fictício opcional.
+2. Filtrar categoria e escolher um prato.
+3. Selecionar opções, quantidade e observação.
+4. Adicionar à comanda, revisar e enviar na simulação.
+5. Atualizar status: Na Fila do Fogão → Preparando na Panela → A Caminho da Mesa → Servido na Mesa.
+6. Simular fechamento por PIX, cartão ou dinheiro.
 
-1. Filtrar a categoria ou buscar um produto.
-2. Adicionar itens e ajustar quantidades.
-3. Escolher uma mesa de 01 a 12.
-4. Informar observações opcionais.
-5. Conferir o total e confirmar.
-6. Visualizar o pedido recebido na área de acompanhamento.
-
-### Acompanhar pedido
-
-O fluxo é Recebido → Em preparo → Pronto → Entregue. Antes da entrega, o pedido pode ser cancelado após confirmação. Pedidos cancelados permanecem no histórico. O contador da aba considera apenas pedidos ainda em andamento.
-
-As ações de balcão são liberadas para demonstração; não representam acesso autenticado de funcionário.
+Atendimento é apenas simulado. PIX não fornece código válido para cobrança. O fechamento soma pedidos enviados e serviço de 10%. Itens pendentes precisam ser enviados primeiro. Pedidos encerrados são arquivados localmente; não há tela de histórico de contas fechadas.
 
 ## 6. Organização de arquivos
 
-```text
-projetos/pedidos-local/
-├── index.html
-├── styles.css
-├── app.js
-├── documentacao.html
-└── DOCUMENTACAO.md
-```
-
-O HTML define os componentes. O CSS concentra a apresentação. O JavaScript contém o cardápio e as operações. O documento HTML permite leitura na web e o Markdown permite download.
+index.html contém estrutura e configuração Tailwind. app.js contém cardápio, comanda e persistência. styles.css está reservado para ajustes adicionais; o visual usa principalmente classes utilitárias. documentacao.html e DOCUMENTACAO.md apresentam esta documentação.
 
 ## 7. Git e GitHub
 
-O projeto é publicado no repositório danieldosadi/danieldosadi.github.io, branch producao, dentro de projetos/pedidos-local. O cartão do portfólio inclui Abrir aplicativo e Documentação técnica e funcional.
-
-As alterações são registradas em commits. Não publicar dados reais de pedidos, credenciais ou informações de clientes.
+Repositório danieldosadi/danieldosadi.github.io, branch producao, pasta projetos/pedidos-local. O cartão apresenta Abrir aplicativo e Documentação técnica e funcional. Não publicar dados reais nem credenciais.
 
 ## 8. Backend
 
-Não há backend nesta versão. Todas as operações são realizadas no navegador. A chave balcao-cafe-pedidos-v1 no LocalStorage armazena carrinho, pedidos e próxima numeração.
-
-Limpar os dados do navegador elimina o histórico. Outro navegador não verá os mesmos pedidos. Mesa e observações ainda em preenchimento não são restauradas automaticamente.
-
-Para operação real seria necessário servidor, banco compartilhado, autenticação, autorização, controle de concorrência, segurança e integração com a equipe de atendimento.
+Não há backend. A chave sabor-de-casa-v1 guarda sessão, carrinho, pedidos ativos, numeração e pedidos fechados no navegador. Dados não são compartilhados entre dispositivos. Limpar o armazenamento apaga a demonstração. Dados da antiga cafeteria não são migrados.
 
 ## 9. Validação
 
-- Pedido exige ao menos um produto e mesa válida entre 1 e 12.
-- Quantidade limitada a 20 unidades por produto.
-- Valores calculados em centavos inteiros e exibidos em reais.
-- Observações limitadas a 240 caracteres.
-- Transições de status seguem a sequência definida.
-- Falha de armazenamento apresenta mensagem e impede confirmar o pedido como persistido.
-- Textos de usuário são apresentados por textContent, sem interpretação como HTML.
+Mesa obrigatória, nome opcional até 80 caracteres, quantidade de 1 a 20 por inclusão e observações até 240 caracteres. Observações são escapadas antes da apresentação em HTML. Valores somam adicionais e quantidades; o fechamento arredonda a conta com serviço a centavos. Troco informado deve cobrir o total. Conta vazia e carrinho pendente bloqueiam fechamento. Falhas de armazenamento são informadas.
 
-O histórico local pode ser alterado pelas ferramentas do navegador. Não existe garantia de integridade ou autorização de servidor.
+Não há autenticação ou validação de servidor. Não utilizar dados pessoais ou pagamentos reais.
 
 ## 10. Critérios de aceite
 
 | ID | Resultado esperado |
 | --- | --- |
-| CA01 | Cardápio mostra nome, descrição, preço e ação de adicionar |
-| CA02 | Categoria e busca filtram os produtos |
-| CA03 | Quantidade e remoção atualizam o total |
-| CA04 | Confirmação permanece indisponível sem mesa ou itens |
-| CA05 | Pedido confirmado guarda mesa, itens, total e observações |
-| CA06 | Confirmação limpa o carrinho e abre o acompanhamento |
-| CA07 | Pedido percorre os estados permitidos |
-| CA08 | Cancelamento exige confirmação e preserva histórico |
-| CA09 | Atualizar a página preserva pedidos salvos neste navegador |
-| CA10 | Filtro de status e contador de pedidos ativos funcionam |
-| CA11 | Página permite utilização em computador e celular |
-
-Esses critérios orientam a validação e evolução do aplicativo; não constituem certificação de acessibilidade ou segurança.
+| CA01 | Mesa ou balcão são selecionados antes de iniciar |
+| CA02 | Cardápio e categorias seguem o modelo fornecido |
+| CA03 | Opções, quantidade e observação compõem o item |
+| CA04 | Comanda permite revisar e remover itens pendentes |
+| CA05 | Envio simulado cria pedido e limpa carrinho |
+| CA06 | Acompanhamento avança nas etapas definidas |
+| CA07 | Conta considera pedidos enviados e serviço de 10% |
+| CA08 | Recarregar mantém sessão e pedidos salvos |
+| CA09 | Nenhuma ação efetua cobrança ou envio real |
 
 ## 11. Entregáveis
 
-- Aplicativo público em HTML, CSS e JavaScript.
-- Cardápio fictício de cafeteria e fluxo completo de pedido local.
-- Documentação publicada e versão Markdown para download.
-- Cartão do projeto no portfólio com os dois links.
+Aplicativo baseado na referência, cardápio de restaurante, comanda com opções, acompanhamento e fechamento demonstrativos, armazenamento local, documentação atualizada e publicação no portfólio.
 
 ## 12. Conclusão
 
-Pedidos no Local demonstra uma experiência de compra no estabelecimento, com navegação compacta, cálculos de carrinho e acompanhamento de estados. A proposta é apresentar competências de interface e lógica JavaScript sem depender de servidor.
-
-Como evolução, recomenda-se integrar um backend e uma tela de cozinha autenticada, sincronizar pedidos entre dispositivos e implementar controles operacionais antes de qualquer utilização comercial.
+A versão demonstra uma comanda de restaurante com apresentação acolhedora. Uso real exige servidor, banco compartilhado, autenticação, integração com cozinha e meios de pagamento homologados.
 

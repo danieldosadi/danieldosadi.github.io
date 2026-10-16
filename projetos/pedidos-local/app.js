@@ -1,20 +1,600 @@
-'use strict';
-const MENU=[{id:1,name:'Espresso da casa',description:'Café intenso, encorpado e com crema delicada.',category:'Cafés',price:650,icon:'☕'},{id:2,name:'Cappuccino',description:'Espresso, leite vaporizado e um toque de canela.',category:'Cafés',price:1200,icon:'☕'},{id:3,name:'Latte gelado',description:'Café e leite com gelo para uma pausa refrescante.',category:'Cafés',price:1400,icon:'🥤'},{id:4,name:'Suco de laranja',description:'Natural, preparado na hora. Copo de 300 ml.',category:'Bebidas',price:1000,icon:'🍊'},{id:5,name:'Chá da tarde',description:'Infusão de camomila, hortelã ou frutas vermelhas.',category:'Bebidas',price:800,icon:'🍵'},{id:6,name:'Pão de queijo',description:'Porção com três unidades quentinhas.',category:'Salgados',price:900,icon:'🧀'},{id:7,name:'Croissant artesanal',description:'Massa amanteigada com recheio de queijo.',category:'Salgados',price:1500,icon:'🥐'},{id:8,name:'Sanduíche do balcão',description:'Pão rústico, queijo, tomate e folhas frescas.',category:'Salgados',price:2200,icon:'🥪'},{id:9,name:'Bolo de cenoura',description:'Fatia generosa com cobertura de chocolate.',category:'Doces',price:1200,icon:'🍰'},{id:10,name:'Cookie de chocolate',description:'Crocante por fora e macio por dentro.',category:'Doces',price:850,icon:'🍪'}];
-const KEY='balcao-cafe-pedidos-v1',$=id=>document.getElementById(id),money=cents=>(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
-let state={cart:{},orders:[],next:1},category='Todos';
-try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&typeof saved.cart==='object'&&Array.isArray(saved.orders)&&Number.isInteger(saved.next))state=saved;}catch{}
-function feedback(text,error=false){$('feedback').textContent=text;$('feedback').classList.toggle('error',error);$('feedback').hidden=false;}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));return true;}catch{feedback('Não foi possível salvar neste navegador. Verifique as permissões de armazenamento.',true);return false;}}
-function cartItems(){return MENU.filter(p=>Number.isInteger(state.cart[p.id])&&state.cart[p.id]>0).map(p=>({...p,qty:state.cart[p.id]}));}
-function cartTotal(){return cartItems().reduce((sum,p)=>sum+p.price*p.qty,0);}
-function setQuantity(id,quantity){const product=MENU.find(p=>p.id===id);if(!product)return;if(quantity>20){feedback('Limite de 20 unidades por produto no pedido.',true);return;}if(quantity<=0)delete state.cart[id];else state.cart[id]=quantity;save();renderCart();}
-function renderMenu(){const grid=$('products');grid.replaceChildren();const term=$('search').value.toLocaleLowerCase('pt-BR').trim();for(const p of MENU.filter(p=>(category==='Todos'||p.category===category)&&(p.name+' '+p.description).toLocaleLowerCase('pt-BR').includes(term))){const card=node('article',undefined,'product'),icon=node('span',p.icon,'product-icon');icon.setAttribute('aria-hidden','true');card.append(icon,node('h3',p.name),node('p',p.description));const bottom=node('div',undefined,'product-bottom'),add=node('button','+ Adicionar');add.type='button';add.setAttribute('aria-label','Adicionar '+p.name);add.onclick=()=>{setQuantity(p.id,(state.cart[p.id]||0)+1);feedback(p.name+' adicionado ao pedido.');};bottom.append(node('strong',money(p.price)),add);card.append(bottom);grid.append(card);}if(!grid.children.length)grid.append(node('p','Nenhum item encontrado. Tente outra busca.','empty'));}
-function renderCart(){const list=$('cartItems');list.replaceChildren();const items=cartItems();for(const p of items){const row=node('div',undefined,'cart-item');row.append(node('strong',p.name),node('span',money(p.price*p.qty),'price'));const q=node('div',undefined,'quantity'),minus=node('button','−'),plus=node('button','+'),remove=node('button','Remover','remove');for(const b of [minus,plus,remove])b.type='button';minus.setAttribute('aria-label','Diminuir '+p.name);plus.setAttribute('aria-label','Aumentar '+p.name);remove.setAttribute('aria-label','Remover '+p.name);minus.onclick=()=>setQuantity(p.id,p.qty-1);plus.onclick=()=>setQuantity(p.id,p.qty+1);remove.onclick=()=>setQuantity(p.id,0);q.append(minus,node('span',String(p.qty)),plus,remove);row.append(q);list.append(row);}if(!items.length)list.append(node('p','Seu pedido está vazio. Adicione algo gostoso do cardápio.','empty'));const count=items.reduce((sum,p)=>sum+p.qty,0);$('cartCount').textContent=count+(count===1?' item':' itens');$('total').textContent=money(cartTotal());$('submitOrder').disabled=!items.length||!$('table').value;}
-function setTab(orders){$('menuPanel').hidden=orders;$('ordersPanel').hidden=!orders;$('menuTab').setAttribute('aria-pressed',String(!orders));$('ordersTab').setAttribute('aria-pressed',String(orders));if(orders)renderOrders();}
-function submitOrder(){const items=cartItems(),table=Number($('table').value);if(!items.length||!Number.isInteger(table)||table<1||table>12){feedback('Escolha a mesa e adicione pelo menos um item.',true);return;}const previous=structuredClone(state),order={id:state.next++,table,items:items.map(({id,name,qty,price})=>({id,name,qty,price})),total:cartTotal(),notes:$('notes').value.trim().slice(0,240),created:new Date().toISOString(),status:'Recebido'};state.orders.unshift(order);state.cart={};if(!save()){state=previous;return;}$('notes').value='';renderCart();renderOrders();setTab(true);feedback('Pedido #'+String(order.id).padStart(3,'0')+' recebido! Mesa '+table+'.');}
-function updateStatus(id,status){const order=state.orders.find(o=>o.id===id);if(!order)return;const allowed={Recebido:['Em preparo','Cancelado'],'Em preparo':['Pronto','Cancelado'],Pronto:['Entregue','Cancelado']};if(!allowed[order.status]?.includes(status))return;const old=order.status;order.status=status;if(!save()){order.status=old;return;}renderOrders();feedback('Pedido #'+String(id).padStart(3,'0')+': '+status.toLowerCase()+'.');}
-function renderOrders(){const container=$('orders');container.replaceChildren();$('orderCount').textContent=String(state.orders.filter(o=>!['Entregue','Cancelado'].includes(o.status)).length);for(const o of state.orders.filter(o=>!$('statusFilter').value||o.status===$('statusFilter').value)){const card=node('article',undefined,'order'),head=node('div',undefined,'order-head');head.append(node('h3','Pedido #'+String(o.id).padStart(3,'0')+' · Mesa '+o.table),node('span',o.status,'status'+(o.status==='Pronto'?' ready':o.status==='Cancelado'?' cancelled':'')));card.append(head,node('p',new Date(o.created).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),'muted'));const list=node('ul');for(const item of o.items){const li=node('li');li.append(node('span',item.qty+'× '+item.name),node('strong',money(item.price*item.qty)));list.append(li);}card.append(list);if(o.notes)card.append(node('p','Observação: '+o.notes,'muted'));const total=node('div',undefined,'order-total');total.append(node('span','Total'),node('strong',money(o.total)));card.append(total);const actions=node('div',undefined,'order-actions'),next={Recebido:['Iniciar preparo','Em preparo'],'Em preparo':['Marcar como pronto','Pronto'],Pronto:['Marcar como entregue','Entregue']}[o.status];if(next){const button=node('button',next[0],'primary');button.onclick=()=>updateStatus(o.id,next[1]);actions.append(button);const cancel=node('button','Cancelar pedido');cancel.onclick=()=>{const d=node('dialog');d.setAttribute('aria-label','Cancelar pedido');d.style.cssText='border:1px solid #e8e0d5;border-radius:14px;padding:24px;max-width:400px';d.append(node('h2','Cancelar pedido #'+String(o.id).padStart(3,'0')+'?'),node('p','O pedido permanecerá no histórico como cancelado.'));const back=node('button','Voltar'),yes=node('button','Sim, cancelar');back.onclick=()=>{d.close();d.remove();};yes.onclick=()=>{d.close();d.remove();updateStatus(o.id,'Cancelado');};d.addEventListener('cancel',()=>d.remove());d.append(back,yes);document.body.append(d);d.showModal();back.focus();};actions.append(cancel);}card.append(actions);container.append(card);}if(!container.children.length)container.append(node('p',state.orders.length?'Nenhum pedido com este status.':'Ainda não há pedidos. Monte o primeiro no cardápio.','empty'));}
-for(let i=1;i<=12;i++)$('table').add(new Option('Mesa '+String(i).padStart(2,'0'),String(i)));
-for(const name of ['Todos','Cafés','Bebidas','Salgados','Doces']){const button=node('button',name);button.type='button';button.setAttribute('aria-pressed',String(name===category));button.onclick=()=>{category=name;for(const b of $('categories').children)b.setAttribute('aria-pressed',String(b===button));renderMenu();};$('categories').append(button);}
-$('search').oninput=renderMenu;$('table').onchange=renderCart;$('submitOrder').onclick=submitOrder;$('menuTab').onclick=()=>setTab(false);$('ordersTab').onclick=()=>setTab(true);$('statusFilter').onchange=renderOrders;renderMenu();renderCart();renderOrders();
+
+        // Cardápio de Comida Caseira no Fogão a Lenha
+        const menuItems = [
+            {
+                id: 1,
+                name: "Feijoada Completa da Vovó",
+                category: "pratos-dia",
+                price: 42.90,
+                description: "Feijoada caseira apurada no fogão a lenha com carne seca, lombo, costelinha e paio. Acompanha couve refogada, torresmo e farofa.",
+                image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: [
+                    { title: "Torresmo Crocante Extra", price: 8.00 },
+                    { title: "Copo de Batidinha de Limão", price: 6.00 }
+                ]
+            },
+            {
+                id: 2,
+                name: "Dobradinha com Laranja e Bastante Farofa",
+                category: "pratos-dia",
+                price: 38.00,
+                description: "Dobradinha macia com feijão branco, linguiça calabresa e bacon temperado com alho e cheiro-verde.",
+                image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: [
+                    { title: "Farofa de Alho Extra", price: 4.00 }
+                ]
+            },
+            {
+                id: 3,
+                name: "PF de Bife acebolado com Ovo",
+                category: "executivos",
+                price: 32.90,
+                description: "Bife de alcatra macio acebolado, ovo frito com gema mole, arroz soltinho, feijão e salada de tomate com alface.",
+                image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: true,
+                options: [
+                    { title: "Ovo Frito Extra", price: 4.00 },
+                    { title: "Pimenta da Casa no Pote", price: 2.00 }
+                ]
+            },
+            {
+                id: 4,
+                name: "Frango a Passarinho com Alho Dourado",
+                category: "executivos",
+                price: 29.90,
+                description: "Pedacinhos de frango crocantes cobertos de alho frito dourado, servido com arroz, feijão e maionese de batata.",
+                image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: true,
+                options: [
+                    { title: "Porção Extra de Maionese Caseira", price: 5.00 }
+                ]
+            },
+            {
+                id: 5,
+                name: "Costela Suína Assada com Mandioca",
+                category: "executivos",
+                price: 36.00,
+                description: "Costelinha desmanchando na boca com mandioca cozida na manteiga de garrafa, arroz e feijão.",
+                image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: true,
+                options: [
+                    { title: "Mandioca Frita em vez de Cozida", price: 3.00 }
+                ]
+            },
+            {
+                id: 6,
+                name: "Porção de Torresmo de Rolo",
+                category: "acompanhamentos",
+                price: 22.00,
+                description: "Torresmo artesanal crocante por fora e suculento por dentro. Acompanha fatias de limão caipira.",
+                image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: []
+            },
+            {
+                id: 7,
+                name: "Mandioca Frita na Hora",
+                category: "acompanhamentos",
+                price: 18.00,
+                description: "Mandioca amarela bem macia e frita, polvilhada com cheiro-verde.",
+                image: "https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: []
+            },
+            {
+                id: 8,
+                name: "Jarra de Suco Natural de Laranja (1 Litro)",
+                category: "bebidas",
+                price: 18.00,
+                description: "Jarra de suco da fruta feito na hora bem geladinho.",
+                image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: [
+                    { title: "Sem Açúcar", price: 0.00 },
+                    { title: "Com Bastante Gelo", price: 0.00 }
+                ]
+            },
+            {
+                id: 9,
+                name: "Limonada Suíça com Leite Condensado",
+                category: "bebidas",
+                price: 12.00,
+                description: "Copo grande de limonada cremosa batida com gelo.",
+                image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: []
+            },
+            {
+                id: 10,
+                name: "Guaraná Guaratini / Refrigerante Lata",
+                category: "bebidas",
+                price: 6.50,
+                description: "Lata 350ml bem gelada.",
+                image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: [
+                    { title: "Copo com Gelo e Limão", price: 0.00 }
+                ]
+            },
+            {
+                id: 11,
+                name: "Pudim de Leite Condensado Caseiro",
+                category: "sobremesas",
+                price: 12.00,
+                description: "Fatia generosa de pudim sem furinhos com bastante calda de caramelo.",
+                image: "https://images.unsplash.com/photo-1528975604071-b4dc52a2d18c?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: []
+            },
+            {
+                id: 12,
+                name: "Doce de Leite na Palha com Queijo Minas",
+                category: "sobremesas",
+                price: 14.00,
+                description: "Pratinho com doce de leite artesanal mineiro acompanhado de queijo curado.",
+                image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
+                hasBeanChoice: false,
+                options: []
+            }
+        ];
+
+        let tableNumber = "";
+        let clientName = "";
+        let cart = [];
+        let activeOrders = [];
+        let currentSelectedItem = null;
+        let modalQty = 1;
+        let selectedPayment = null;
+
+        // Iniciar Sessão da Mesa
+        function initSession(event) {
+            event.preventDefault();
+            const tableVal = document.getElementById('table-select').value;
+            const clientVal = document.getElementById('client-name-input').value.trim();
+
+            if (!tableVal) return;
+
+            tableNumber = tableVal;
+            clientName = clientVal || "Cliente";
+
+            document.getElementById('display-table').innerText = tableNumber;
+            document.getElementById('display-client').innerText = clientName;
+            document.getElementById('cart-modal-subtitle').innerText = `${tableNumber} • ${clientName}`;
+
+            document.getElementById('table-modal').classList.add('hidden');
+            renderMenu('todos');
+        }
+
+        // Renderizar Cardápio na Tela
+        function renderMenu(category) {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+
+            const filtered = category === 'todos' 
+                ? menuItems 
+                : menuItems.filter(item => item.category === category);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-cream-300 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="relative h-44 cursor-pointer" onclick="openItemModal(${item.id})">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/ebdcc3/7c2d12?text=Comida+Caseira'">
+                        <div class="absolute bottom-2 right-2 bg-terracota-800/90 text-white font-bold text-xs px-3 py-1 rounded-xl shadow">
+                            R$ ${item.price.toFixed(2).replace('.', ',')}
+                        </div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-stone-900 font-display text-base mb-1 hover:text-terracota-600 transition-colors cursor-pointer" onclick="openItemModal(${item.id})">${item.name}</h3>
+                            <p class="text-stone-500 text-xs line-clamp-2 mb-3 leading-relaxed">${item.description}</p>
+                        </div>
+                        <button onclick="openItemModal(${item.id})" class="w-full py-2.5 bg-cream-100 hover:bg-terracota-600 hover:text-white text-terracota-800 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 border border-cream-300 group">
+                            <i class="fa-solid fa-plus text-terracota-600 group-hover:text-white transition-colors"></i>
+                            <span>Escolher / Opções</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filtro de Categorias
+        function filterCategory(cat) {
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('bg-terracota-600', 'text-white', 'shadow-md', 'shadow-terracota-600/20');
+                b.classList.add('bg-white', 'text-stone-700', 'border-cream-300');
+            });
+            event.currentTarget.classList.add('bg-terracota-600', 'text-white', 'shadow-md', 'shadow-terracota-600/20');
+            renderMenu(cat);
+        }
+
+        // Abrir Modal de Opções do Prato
+        function openItemModal(id) {
+            currentSelectedItem = menuItems.find(i => i.id === id);
+            modalQty = 1;
+
+            document.getElementById('modal-item-img').src = currentSelectedItem.image;
+            document.getElementById('modal-item-name').innerText = currentSelectedItem.name;
+            document.getElementById('modal-item-desc').innerText = currentSelectedItem.description;
+            document.getElementById('modal-item-price').innerText = `R$ ${currentSelectedItem.price.toFixed(2).replace('.', ',')}`;
+            document.getElementById('modal-item-obs').value = '';
+            document.getElementById('modal-qty').innerText = modalQty;
+
+            // Mostrar/Esconder opção de escolha do feijão
+            const beanBox = document.getElementById('bean-selection-box');
+            if (currentSelectedItem.hasBeanChoice) {
+                beanBox.classList.remove('hidden');
+            } else {
+                beanBox.classList.add('hidden');
+            }
+
+            // Opcionais adicionais
+            const optionsContainer = document.getElementById('modal-options-container');
+            const optionsList = document.getElementById('modal-options-list');
+            optionsList.innerHTML = '';
+
+            if (currentSelectedItem.options && currentSelectedItem.options.length > 0) {
+                optionsContainer.classList.remove('hidden');
+                currentSelectedItem.options.forEach(opt => {
+                    const label = document.createElement('label');
+                    label.className = "flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:border-terracota-500 transition-all";
+                    label.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" name="modal-option" value="${opt.title}" data-price="${opt.price}" class="w-4 h-4 text-terracota-600 rounded focus:ring-terracota-500">
+                            <span class="text-xs font-semibold text-stone-700">${opt.title}</span>
+                        </div>
+                        <span class="text-xs font-bold text-terracota-700">${opt.price > 0 ? '+ R$ ' + opt.price.toFixed(2).replace('.', ',') : 'Grátis'}</span>
+                    `;
+                    optionsList.appendChild(label);
+                });
+            } else {
+                optionsContainer.classList.add('hidden');
+            }
+
+            updateModalTotal();
+
+            const modal = document.getElementById('item-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeItemModal() {
+            const modal = document.getElementById('item-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function adjustModalQty(change) {
+            modalQty += change;
+            if (modalQty < 1) modalQty = 1; if(modalQty > 20) modalQty = 20;
+            document.getElementById('modal-qty').innerText = modalQty;
+            updateModalTotal();
+        }
+
+        function updateModalTotal() {
+            let unitPrice = currentSelectedItem.price;
+            document.querySelectorAll('input[name="modal-option"]:checked').forEach(cb => {
+                unitPrice += parseFloat(cb.getAttribute('data-price') || 0);
+            });
+            const total = unitPrice * modalQty;
+            document.getElementById('modal-total-btn').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.name === 'modal-option') {
+                updateModalTotal();
+            }
+        });
+
+        // Adicionar ao Carrinho da Mesa
+        function addCurrentItemToCart() {
+            let unitPrice = currentSelectedItem.price;
+            const selectedOpts = [];
+
+            // Adiciona escolha do feijão se aplicável
+            if (currentSelectedItem.hasBeanChoice) {
+                const beanVal = document.querySelector('input[name="bean-choice"]:checked')?.value;
+                if (beanVal) selectedOpts.push(beanVal);
+            }
+
+            // Opcionais selecionados
+            document.querySelectorAll('input[name="modal-option"]:checked').forEach(cb => {
+                unitPrice += parseFloat(cb.getAttribute('data-price') || 0);
+                selectedOpts.push(cb.value);
+            });
+
+            const obs = document.getElementById('modal-item-obs').value.trim();
+
+            const cartItem = {
+                cartId: Date.now() + Math.random(),
+                name: currentSelectedItem.name,
+                unitPrice: unitPrice,
+                quantity: modalQty,
+                options: selectedOpts,
+                observation: obs,
+                total: unitPrice * modalQty
+            };
+
+            cart.push(cartItem);
+            closeItemModal();
+            updateCartUI();
+
+            showCustomAlert("Item Adicionado!", `${modalQty}x ${currentSelectedItem.name} colocado na comanda.`, "success");
+        }
+
+        // Atualizar visual da Comanda
+        function updateCartUI() {
+            const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+            const subtotal = cart.reduce((acc, item) => acc + item.total, 0);
+            const serviceTax = subtotal * 0.10;
+            const grandTotal = subtotal + serviceTax;
+
+            const cartBar = document.getElementById('cart-bar');
+            if (totalItems > 0) {
+                cartBar.classList.remove('translate-y-full');
+            } else {
+                cartBar.classList.add('translate-y-full');
+            }
+
+            document.getElementById('cart-badge').innerText = totalItems;
+            document.getElementById('cart-total-price').innerText = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
+
+            const container = document.getElementById('cart-items-container');
+            const emptyState = document.getElementById('cart-empty-state');
+            const summaryBox = document.getElementById('cart-summary-box');
+
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                emptyState.classList.remove('hidden');
+                summaryBox.classList.add('hidden');
+                document.getElementById('send-order-btn').classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                emptyState.classList.add('hidden');
+                summaryBox.classList.remove('hidden');
+                document.getElementById('send-order-btn').classList.remove('opacity-50', 'pointer-events-none');
+
+                cart.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = "py-3 flex flex-col gap-1";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-stone-900 text-sm font-display">${item.quantity}x ${item.name}</h4>
+                                ${item.options.length > 0 ? `<p class="text-xs text-terracota-700 font-semibold">+ ${item.options.join(', ')}</p>` : ''}
+                                ${item.observation ? `<p class="text-xs text-stone-500 italic">Obs: "${escapeHTML(item.observation)}"</p>` : ''}
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-stone-900 text-sm">R$ ${item.total.toFixed(2).replace('.', ',')}</span>
+                                <button onclick="removeFromCart(${index})" class="block text-xs text-red-600 hover:underline mt-1 ml-auto font-semibold">Remover</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            document.getElementById('summary-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('summary-service').innerText = `R$ ${serviceTax.toFixed(2).replace('.', ',')}`;
+            document.getElementById('summary-total').innerText = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('checkout-total-val').innerText = `R$ ${grandTotal.toFixed(2).replace('.', ',')}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function openCartModal() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCartModal() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Mandar Pedido para o Fogão / Cozinha
+        function sendOrderToKitchen() {
+            if (cart.length === 0) return;
+
+            const orderGroup = {
+                id: nextOrderId++,
+                items: [...cart],
+                status: 'Na Fila do Fogão 🪵',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            activeOrders.push(orderGroup);
+            cart = []; // Limpa o carrinho atual
+            closeCartModal();
+            updateCartUI();
+            renderActiveOrders();
+
+            showCustomAlert("Pedido Enviado!", `Seu pedido com a Senha #${orderGroup.id} foi registrado na demonstração!`, "success");
+        }
+
+        // Renderizar acompanhamento dos pedidos
+        function renderActiveOrders() {
+            const section = document.getElementById('active-orders-section');
+            const list = document.getElementById('active-orders-list');
+            list.innerHTML = '';
+
+            if (activeOrders.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            activeOrders.forEach(order => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-3 rounded-xl border border-amber-200 text-xs flex items-center justify-between";
+                div.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-stone-900 font-display">Pedido #${order.id}</span>
+                            <span class="bg-amber-100 text-terracota-800 px-2 py-0.5 rounded-full font-bold">${order.status}</span>
+                        </div>
+                        <p class="text-stone-500 mt-0.5">${order.items.reduce((acc, i) => acc + i.quantity, 0)} prato(s) • Enviado às ${order.time}</p>
+                    </div>
+                    <button onclick="advanceOrderStatus(${order.id})" class="bg-amber-100 hover:bg-amber-200 text-terracota-800 px-2.5 py-1 rounded-lg font-bold transition-colors">
+                        Atualizar
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function advanceOrderStatus(orderId) {
+            const order = activeOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            if (order.status === 'Na Fila do Fogão 🪵') {
+                order.status = 'Preparando na Panela 🍲';
+            } else if (order.status === 'Preparando na Panela 🍲') {
+                order.status = 'A Caminho da Mesa! 🍽️';
+            } else {
+                order.status = 'Servido na Mesa ✅';
+            }
+            renderActiveOrders();
+            showCustomAlert("Status Atualizado", `O Pedido #${order.id} agora está: ${order.status}`, "info");
+        }
+
+        // Abrir Tela de Pagamento/Checkout
+        function openCheckoutModal() {
+            closeCartModal();
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Selecionar Forma de Pagamento
+        function selectPaymentMethod(method) {
+            selectedPayment = method;
+
+            // Resetar visual dos botões
+            document.querySelectorAll('.pay-method-btn').forEach(b => {
+                b.classList.remove('border-terracota-600', 'bg-terracota-50');
+                b.classList.add('border-stone-200', 'bg-white');
+            });
+
+            document.getElementById(`pay-btn-${method}`).classList.remove('border-stone-200', 'bg-white');
+            document.getElementById(`pay-btn-${method}`).classList.add('border-terracota-600', 'bg-terracota-50');
+
+            // Exibir área de detalhes
+            document.getElementById('payment-details-area').classList.remove('hidden');
+            document.getElementById('payment-pix-details').classList.add('hidden');
+            document.getElementById('payment-card-details').classList.add('hidden');
+            document.getElementById('payment-cash-details').classList.add('hidden');
+
+            if (method === 'pix') {
+                document.getElementById('payment-pix-details').classList.remove('hidden');
+            } else if (method === 'card') {
+                document.getElementById('payment-card-details').classList.remove('hidden');
+            } else if (method === 'cash') {
+                document.getElementById('payment-cash-details').classList.remove('hidden');
+            }
+
+            // Habilitar botão
+            const finishBtn = document.getElementById('finish-pay-btn');
+            finishBtn.disabled = false;
+            finishBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function copyPixCode() {
+            const dummyPix = "DEMONSTRACAO-SEM-VALOR-DE-PAGAMENTO";
+            
+            // Copiar via execCommand para garantia de suporte
+            const el = document.createElement('textarea');
+            el.value = dummyPix;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            showCustomAlert("Copiado!", "Texto demonstrativo copiado. Não possui valor para pagamento.", "success");
+        }
+
+        function finishPayment() {
+            if (!selectedPayment) return;
+
+            closeCheckoutModal();
+
+            let message = "";
+            if (selectedPayment === 'pix') {
+                message = "Simulação concluída. Nenhum PIX foi realizado ou comprovante enviado.";
+            } else if (selectedPayment === 'card') {
+                message = "Simulação de pagamento com cartão concluída. Nenhum chamado real foi enviado.";
+            } else {
+                const change = document.getElementById('cash-change-input').value;
+                message = change ? `Simulação em dinheiro com troco para R$ ${change}. Nenhuma cobrança realizada.` : "Simulação em dinheiro concluída. Nenhuma cobrança realizada.";
+            }
+
+            showCustomAlert("Obrigado pela Preferência!", message, "success");
+            activeOrders = [];
+            renderActiveOrders();
+        }
+
+        // Chamar Garçom
+        function callWaiter() {
+            if (!tableNumber) return;
+            showCustomAlert("Garçom Avisado", `Simulação de chamada para ${tableNumber}. Nenhum atendimento real foi notificado.`, "info");
+        }
+
+        // Alerta Modal
+        function showCustomAlert(title, message, type = "success") {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-message').innerText = message;
+            
+            const iconDiv = document.getElementById('alert-icon');
+            if (type === "success") {
+                iconDiv.className = "w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconDiv.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            } else if (type === "info") {
+                iconDiv.className = "w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconDiv.innerHTML = '<i class="fa-solid fa-bell"></i>';
+            } else {
+                iconDiv.className = "w-16 h-16 bg-amber-100 text-terracota-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+
+            const alertModal = document.getElementById('custom-alert');
+            alertModal.classList.remove('hidden');
+            alertModal.classList.add('flex');
+        }
+
+        function closeCustomAlert() {
+            const alertModal = document.getElementById('custom-alert');
+            alertModal.classList.add('hidden');
+            alertModal.classList.remove('flex');
+        }
+    
+// Persistence and demonstrative account handling.
+const RESTAURANT_KEY='sabor-de-casa-v1';let nextOrderId=100,closedOrders=[];
+function escapeHTML(value){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');}
+function storeSession(){try{localStorage.setItem(RESTAURANT_KEY,JSON.stringify({tableNumber,clientName,cart,activeOrders,nextOrderId,closedOrders}));}catch{showCustomAlert('Armazenamento indisponível','Não foi possível salvar no navegador. Os dados desta sessão podem ser perdidos.','warning');}}
+function accountTotal(){return Math.round(activeOrders.reduce((sum,order)=>sum+order.items.reduce((total,item)=>total+item.total,0),0)*110)/100;}
+const originalInit=initSession;initSession=function(event){originalInit(event);storeSession();};
+const originalAdd=addCurrentItemToCart;addCurrentItemToCart=function(){originalAdd();storeSession();};
+const originalRemove=removeFromCart;removeFromCart=function(index){originalRemove(index);storeSession();};
+const originalSend=sendOrderToKitchen;sendOrderToKitchen=function(){originalSend();storeSession();};
+const originalAdvance=advanceOrderStatus;advanceOrderStatus=function(id){originalAdvance(id);storeSession();};
+const originalCheckout=openCheckoutModal;openCheckoutModal=function(){if(cart.length){showCustomAlert('Envie os itens primeiro','Há itens na comanda que ainda não foram enviados. Envie-os antes de fechar a conta.','info');return;}if(!activeOrders.length){showCustomAlert('Sua conta está vazia','Escolha um prato e envie o pedido antes de simular o fechamento.','info');return;}originalCheckout();selectedPayment=null;document.getElementById('finish-pay-btn').disabled=true;document.getElementById('payment-details-area').classList.add('hidden');document.querySelectorAll('.pay-method-btn').forEach(b=>{b.classList.remove('border-terracota-600','bg-terracota-50');b.classList.add('border-stone-200','bg-white');});document.getElementById('checkout-total-val').textContent=accountTotal().toLocaleString('pt-BR',{style:'currency',currency:'BRL'});};
+const originalFinish=finishPayment;finishPayment=function(){if(!selectedPayment)return;if(selectedPayment==='cash'){const value=document.getElementById('cash-change-input').value;if(value&&(!Number.isFinite(Number(value))||Number(value)<accountTotal())){showCustomAlert('Confira o valor','O valor para troco precisa ser igual ou maior que o total da conta.','warning');return;}}closedOrders.push(...activeOrders.map(order=>({...order,payment:selectedPayment,closedAt:new Date().toISOString()})));originalFinish();storeSession();};
+try{const saved=JSON.parse(localStorage.getItem(RESTAURANT_KEY));if(saved&&Array.isArray(saved.cart)&&Array.isArray(saved.activeOrders)){tableNumber=typeof saved.tableNumber==='string'?saved.tableNumber:'';clientName=typeof saved.clientName==='string'?saved.clientName:'Cliente';cart=saved.cart;activeOrders=saved.activeOrders;nextOrderId=Number.isInteger(saved.nextOrderId)?saved.nextOrderId:100;closedOrders=Array.isArray(saved.closedOrders)?saved.closedOrders:[];if(tableNumber){document.getElementById('display-table').textContent=tableNumber;document.getElementById('display-client').textContent=clientName;document.getElementById('cart-modal-subtitle').textContent=tableNumber+' • '+clientName;document.getElementById('table-modal').classList.add('hidden');}}}catch{}
+document.getElementById('client-name-input').maxLength=80;document.getElementById('modal-item-obs').maxLength=240;
+renderMenu('todos');updateCartUI();renderActiveOrders();
 
