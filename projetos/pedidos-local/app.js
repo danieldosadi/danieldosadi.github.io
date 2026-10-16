@@ -265,9 +265,10 @@ let tableNumber = "";
             const grid = document.getElementById('menu-grid');
             grid.innerHTML = '';
 
-            const filtered = category === 'todos' 
-                ? menuItems 
-                : menuItems.filter(item => item.category === category);
+            const dayName=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',weekday:'long'}).format(new Date());
+            const available=menuItems.filter(item=>item.category!=='pratos-dia'||item.name.toLocaleLowerCase('pt-BR').startsWith(dayName.toLocaleLowerCase('pt-BR')+' ·'));
+            const filtered=category==='todos'?available:available.filter(item=>item.category===category);
+            if(category==='pratos-dia'&&!filtered.length){const empty=document.createElement('p');empty.className='text-stone-600 p-4';empty.textContent='Não há prato do dia aos sábados e domingos. Escolha uma opção em Prato Feito / Executivo.';grid.append(empty);}
 
             filtered.forEach(item => {
                 const card = document.createElement('div');
