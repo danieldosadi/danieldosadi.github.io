@@ -2,7 +2,7 @@ let juiceReady=false;
 function juiceElement(tag,text){const el=document.createElement(tag);if(text)el.textContent=text;return el;}
 function juiceRadio(group,value,checked=false){const label=juiceElement('label'),input=document.createElement('input');input.type='radio';input.name=group;input.value=value;input.checked=checked;label.append(input,juiceElement('span',value));label.className='juice-choice';return label;}
 function juiceStage(ready){juiceReady=ready;document.getElementById('modal-item-obs').parentElement.hidden=!ready;document.getElementById('modal-add-btn').parentElement.hidden=!ready;document.getElementById('modal-add-btn').disabled=!ready;}
-function juiceTemperatureRequired(){return true;}
+function juiceTemperatureRequired(){return ['Acerola','Morango','Detox'].includes(document.querySelector('[name="juice-flavor"]:checked')?.value);}
 function juiceOptionsValid(){const cups=Number(document.getElementById('juice-cups').value);return (!juiceTemperatureRequired()||!!document.querySelector('[name="juice-water"]:checked'))&&Number.isInteger(cups)&&cups>=0&&cups<=20;}
 function showJuiceExtras(){juiceStage(false);const flavor=document.querySelector('[name="juice-flavor"]:checked')?.value,box=document.getElementById('juice-extras');box.replaceChildren();box.hidden=!flavor;if(!flavor)return;const heading=juiceElement('h4','2. Acompanhamentos extras');heading.className='font-bold text-terracota-800 mb-3';box.append(heading);
 if(juiceTemperatureRequired()){const field=juiceElement('fieldset');field.append(juiceElement('legend','Temperatura da bebida'));const row=juiceElement('div');row.className='juice-choice-row';row.append(juiceRadio('juice-water','Ambiente'),juiceRadio('juice-water','Gelada'));field.append(row);box.append(field);}
