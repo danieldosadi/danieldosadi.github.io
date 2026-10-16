@@ -1,2 +1,8 @@
-/* Visual baseado no modelo fornecido, com Tailwind CSS. */
+/* Navegação permanente, com alturas ajustadas ao tamanho da tela. */
+:root{--header-height:76px;--categories-height:70px}
+body{padding-top:calc(var(--header-height) + var(--categories-height))}
+#site-header{position:fixed;inset:0 0 auto;z-index:40;width:100%}
+#category-navigation{position:fixed;top:var(--header-height);left:0;right:0;z-index:39;padding:8px 16px;background:#fcf8f0;border-bottom:1px solid #ebdcc3;box-shadow:0 3px 8px #43140708}
+#category-navigation>div{max-width:864px;margin:auto;scrollbar-width:thin;scroll-padding:8px}
+html{scroll-padding-top:calc(var(--header-height) + var(--categories-height) + 12px)}
 
