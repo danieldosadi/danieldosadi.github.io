@@ -1,144 +1,234 @@
 
         // Cardápio de Comida Caseira no Fogão a Lenha
         const menuItems = [
+    {
+        "id": 1,
+        "name": "Segunda-feira · Virado à Paulista",
+        "day": "Segunda-feira",
+        "price": 34.9,
+        "description": "Arroz, tutu de feijão, bisteca, ovo, linguiça, couve e banana.",
+        "category": "pratos-dia",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 2,
+        "name": "Terça-feira · Bife à Rolê",
+        "day": "Terça-feira",
+        "price": 34.9,
+        "description": "Arroz, feijão e salada.",
+        "category": "pratos-dia",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 16,
+        "name": "Quarta-feira · Feijoada",
+        "day": "Quarta-feira",
+        "price": 42.9,
+        "description": "Arroz, couve, laranja, torresmo e farofa.",
+        "category": "pratos-dia",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 17,
+        "name": "Quinta-feira · Macarrão / Massas",
+        "day": "Quinta-feira",
+        "price": 29.9,
+        "description": "Molho à bolonhesa ou ao sugo e queijo ralado.",
+        "category": "pratos-dia",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": [
             {
-                id: 1,
-                name: "Feijoada Completa da Vovó",
-                category: "pratos-dia",
-                price: 42.90,
-                description: "Feijoada caseira apurada no fogão a lenha com carne seca, lombo, costelinha e paio. Acompanha couve refogada, torresmo e farofa.",
-                image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: [
-                    { title: "Torresmo Crocante Extra", price: 8.00 },
-                    { title: "Copo de Batidinha de Limão", price: 6.00 }
-                ]
+                "title": "Molho à bolonhesa",
+                "price": 0
             },
             {
-                id: 2,
-                name: "Dobradinha com Laranja e Bastante Farofa",
-                category: "pratos-dia",
-                price: 38.00,
-                description: "Dobradinha macia com feijão branco, linguiça calabresa e bacon temperado com alho e cheiro-verde.",
-                image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: [
-                    { title: "Farofa de Alho Extra", price: 4.00 }
-                ]
-            },
-            {
-                id: 3,
-                name: "PF de Bife acebolado com Ovo",
-                category: "executivos",
-                price: 32.90,
-                description: "Bife de alcatra macio acebolado, ovo frito com gema mole, arroz soltinho, feijão e salada de tomate com alface.",
-                image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: true,
-                options: [
-                    { title: "Ovo Frito Extra", price: 4.00 },
-                    { title: "Pimenta da Casa no Pote", price: 2.00 }
-                ]
-            },
-            {
-                id: 4,
-                name: "Frango a Passarinho com Alho Dourado",
-                category: "executivos",
-                price: 29.90,
-                description: "Pedacinhos de frango crocantes cobertos de alho frito dourado, servido com arroz, feijão e maionese de batata.",
-                image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: true,
-                options: [
-                    { title: "Porção Extra de Maionese Caseira", price: 5.00 }
-                ]
-            },
-            {
-                id: 5,
-                name: "Costela Suína Assada com Mandioca",
-                category: "executivos",
-                price: 36.00,
-                description: "Costelinha desmanchando na boca com mandioca cozida na manteiga de garrafa, arroz e feijão.",
-                image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: true,
-                options: [
-                    { title: "Mandioca Frita em vez de Cozida", price: 3.00 }
-                ]
-            },
-            {
-                id: 6,
-                name: "Porção de Torresmo de Rolo",
-                category: "acompanhamentos",
-                price: 22.00,
-                description: "Torresmo artesanal crocante por fora e suculento por dentro. Acompanha fatias de limão caipira.",
-                image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: []
-            },
-            {
-                id: 7,
-                name: "Mandioca Frita na Hora",
-                category: "acompanhamentos",
-                price: 18.00,
-                description: "Mandioca amarela bem macia e frita, polvilhada com cheiro-verde.",
-                image: "https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: []
-            },
-            {
-                id: 8,
-                name: "Jarra de Suco Natural de Laranja (1 Litro)",
-                category: "bebidas",
-                price: 18.00,
-                description: "Jarra de suco da fruta feito na hora bem geladinho.",
-                image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: [
-                    { title: "Sem Açúcar", price: 0.00 },
-                    { title: "Com Bastante Gelo", price: 0.00 }
-                ]
-            },
-            {
-                id: 9,
-                name: "Limonada Suíça com Leite Condensado",
-                category: "bebidas",
-                price: 12.00,
-                description: "Copo grande de limonada cremosa batida com gelo.",
-                image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: []
-            },
-            {
-                id: 10,
-                name: "Guaraná Guaratini / Refrigerante Lata",
-                category: "bebidas",
-                price: 6.50,
-                description: "Lata 350ml bem gelada.",
-                image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: [
-                    { title: "Copo com Gelo e Limão", price: 0.00 }
-                ]
-            },
-            {
-                id: 11,
-                name: "Pudim de Leite Condensado Caseiro",
-                category: "sobremesas",
-                price: 12.00,
-                description: "Fatia generosa de pudim sem furinhos com bastante calda de caramelo.",
-                image: "https://images.unsplash.com/photo-1528975604071-b4dc52a2d18c?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: []
-            },
-            {
-                id: 12,
-                name: "Doce de Leite na Palha com Queijo Minas",
-                category: "sobremesas",
-                price: 14.00,
-                description: "Pratinho com doce de leite artesanal mineiro acompanhado de queijo curado.",
-                image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
-                hasBeanChoice: false,
-                options: []
+                "title": "Molho ao sugo",
+                "price": 0
             }
-        ];
+        ]
+    },
+    {
+        "id": 18,
+        "name": "Sexta-feira · Peixe (Pescados)",
+        "day": "Sexta-feira",
+        "price": 36.9,
+        "description": "Arroz, feijão, batata frita e molho tártaro.",
+        "category": "pratos-dia",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 3,
+        "name": "PF de Bife",
+        "category": "executivos",
+        "price": 32.9,
+        "description": "Bife grelhado acompanhado de arroz, feijão e salada. Ovo disponível como extra.",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": true,
+        "options": [
+            {
+                "title": "Ovo Frito Extra",
+                "price": 4
+            },
+            {
+                "title": "Pimenta da Casa no Pote",
+                "price": 2
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "name": "Frango a Passarinho com Alho Dourado",
+        "category": "executivos",
+        "price": 29.9,
+        "description": "Pedacinhos de frango crocantes cobertos de alho frito dourado, servido com arroz, feijão e maionese de batata.",
+        "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": true,
+        "options": [
+            {
+                "title": "Porção Extra de Maionese Caseira",
+                "price": 5
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "name": "Porção de Torresmo de Rolo",
+        "category": "acompanhamentos",
+        "price": 22,
+        "description": "Torresmo artesanal crocante por fora e suculento por dentro. Acompanha fatias de limão caipira.",
+        "image": "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 7,
+        "name": "Mandioca Frita na Hora",
+        "category": "acompanhamentos",
+        "price": 18,
+        "description": "Mandioca amarela bem macia e frita, polvilhada com cheiro-verde.",
+        "image": "https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 8,
+        "name": "Jarra de Suco Natural de Laranja (1 Litro)",
+        "category": "bebidas",
+        "price": 18,
+        "description": "Jarra de suco da fruta feito na hora bem geladinho.",
+        "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": [
+            {
+                "title": "Sem Açúcar",
+                "price": 0
+            },
+            {
+                "title": "Com Bastante Gelo",
+                "price": 0
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "name": "Limonada Suíça com Leite Condensado",
+        "category": "bebidas",
+        "price": 12,
+        "description": "Copo grande de limonada cremosa batida com gelo.",
+        "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 10,
+        "name": "Guaraná Guaratini / Refrigerante Lata",
+        "category": "bebidas",
+        "price": 6.5,
+        "description": "Lata 350ml bem gelada.",
+        "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": [
+            {
+                "title": "Copo com Gelo e Limão",
+                "price": 0
+            }
+        ]
+    },
+    {
+        "id": 11,
+        "name": "Pudim de Leite Condensado Caseiro",
+        "category": "sobremesas",
+        "price": 12,
+        "description": "Fatia generosa de pudim sem furinhos com bastante calda de caramelo.",
+        "image": "https://images.unsplash.com/photo-1528975604071-b4dc52a2d18c?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 12,
+        "name": "Doce de Leite na Palha com Queijo Minas",
+        "category": "sobremesas",
+        "price": 14,
+        "description": "Pratinho com doce de leite artesanal mineiro acompanhado de queijo curado.",
+        "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": false,
+        "options": []
+    },
+    {
+        "id": 19,
+        "name": "PF de Filé de Frango Grelhado",
+        "price": 29.9,
+        "description": "Filé de frango grelhado, arroz, feijão e salada.",
+        "category": "executivos",
+        "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": true,
+        "options": [
+            {
+                "title": "Ovo Frito Extra",
+                "price": 4
+            }
+        ]
+    },
+    {
+        "id": 20,
+        "name": "PF de Filé de Frango à Milanesa",
+        "price": 32.9,
+        "description": "Filé de frango empanado e frito, arroz, feijão e salada.",
+        "category": "executivos",
+        "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": true,
+        "options": [
+            {
+                "title": "Ovo Frito Extra",
+                "price": 4
+            }
+        ]
+    },
+    {
+        "id": 21,
+        "name": "PF de Filé de Frango à Parmegiana",
+        "price": 36.9,
+        "description": "Filé de frango empanado com molho de tomate e queijo, acompanhado de arroz, feijão e salada.",
+        "category": "executivos",
+        "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80",
+        "hasBeanChoice": true,
+        "options": [
+            {
+                "title": "Ovo Frito Extra",
+                "price": 4
+            }
+        ]
+    }
+];
 
         menuItems.splice(menuItems.findIndex(item=>item.category==='bebidas'),0,...[{"id":13,"name":"Suco 300 ml","category":"bebidas","price":8,"description":"Suco natural de laranja, preparado na hora. Copo de 300 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]},{"id":14,"name":"Suco 500 ml","category":"bebidas","price":12,"description":"Suco natural de laranja, preparado na hora. Copo de 500 ml.","image":"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80","hasBeanChoice":false,"options":[{"title":"Sem Açúcar","price":0},{"title":"Com Gelo","price":0}]}]);
         const juiceFlavors=[{name:'Laranja',ingredients:'Laranja espremida, sem adição de água.'},{name:'Acerola',ingredients:'Polpa de acerola batida com água.'},{name:'Uva',ingredients:'Suco integral de uva, sem adição de água.'},{name:'Morango',ingredients:'Morango batido com água.'},{name:'Detox',ingredients:'Couve, abacaxi, limão, gengibre e água.'}];
